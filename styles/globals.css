@@ -25,3 +25,12 @@ body {
     text-wrap: balance;
   }
 }
+#company-name {
+  /* font-family: 'Exo 2', sans-serif; */
+  /* font-family: 'Orbitron', sans-serif; */
+ 
+  font-family: "Audiowide", sans-serif;
+  /* font-family: 'Inter', sans-serif; */
+
+  font-weight: 600; /* Adjust to 400, 500, etc., based on your preference */
+}
