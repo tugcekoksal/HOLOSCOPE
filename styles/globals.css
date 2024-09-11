@@ -34,3 +34,19 @@ body {
 
   font-weight: 600; /* Adjust to 400, 500, etc., based on your preference */
 }
+
+@keyframes fadeInNode {
+  0% {
+    opacity: 0;
+    scale: 0.8; /* Apply scaling only */
+  }
+  100% {
+    opacity: 1;
+    scale: 1; /* End with original scale */
+  }
+}
+
+.fade-in-node {
+  animation: fadeInNode 1.9s ease-in-out forwards;
+}
+

@@ -1,43 +1,43 @@
-import React, { useRef, useEffect, useCallback, useState } from 'react';
+import React, { useRef, useEffect, useCallback, useState } from "react"
 
 // Function to check if two nodes overlap
 const areNodesIntersecting = (node1, node2, minDistance) => {
   const distance = Math.sqrt(
     (node1.x - node2.x) ** 2 + (node1.y - node2.y) ** 2
-  );
-  return distance < (node1.size + node2.size + minDistance);
-};
+  )
+  return distance < node1.size + node2.size + minDistance
+}
 
 // Generate nodes with non-overlapping positions and ensure the largest node is in the center
 const generateNodes = (count, canvasWidth, canvasHeight) => {
-  const nodes = [];
-  const mainNodeSize = 30; // Slightly larger size for the main node
-  const minDistanceFromMain = 150;
+  const nodes = []
+  const mainNodeSize = 10
+  const minDistanceFromMain = 200
 
   // Create main node first
   const mainNode = {
     id: 0,
     x: canvasWidth / 2,
-    y: canvasHeight / 2 + 50, // Positioned slightly lower
+    y: canvasHeight / 2 + 50,
     homeX: canvasWidth / 2,
     homeY: canvasHeight / 2 + 100,
     size: mainNodeSize,
-    color: 'rgba(30, 144, 255, 0.9)', // Bright blue for main node
-    originalColor: 'rgba(30, 144, 255, 0.9)',
+    color: "rgba(245, 245, 245, 1)",
+    originalColor: "rgba(30, 144, 255, 0.9)",
     connections: 0,
     speedX: 0,
     speedY: 0,
     isMainNode: true,
     isHovered: false,
-    distanceFromMain: 0, // To track distance for sequential effect
-    connectedNodes: new Set(), // Initialize connectedNodes set
-    glowOpacity: 0, // Track the opacity of the glowing effect
-  };
-  nodes.push(mainNode);
+    distanceFromMain: 0,
+    connectedNodes: new Set(),
+    glowOpacity: 0,
+  }
+  nodes.push(mainNode)
 
   for (let i = 1; i <= count; i++) {
-    let newNode;
-    let isIntersecting;
+    let newNode
+    let isIntersecting
 
     do {
       newNode = {
@@ -47,90 +47,151 @@ const generateNodes = (count, canvasWidth, canvasHeight) => {
         homeX: 0,
         homeY: 0,
         size: Math.random() * 12 + 3,
-        color: 'rgba(200, 200, 200, 0.9)', // Gray color for nodes
-        originalColor: 'rgba(200, 200, 200, 0.9)', // Save original color for reversion
-        connections: 0, // Track the number of connections
+        color: "rgba(200, 200, 200, 0.9)",
+        originalColor: "rgba(200, 200, 200, 0.9)",
+        connections: 0,
         speedX: (Math.random() - 0.5) * 0.2,
         speedY: (Math.random() - 0.5) * 0.2,
         isMainNode: false,
-        blueLevel: 0, // Track the transition level of blue
-        transitionDelay: 0, // Delay before starting blue transition
-        turningBlue: false, // Flag for managing blue state
-        connectedNodes: new Set(), // Initialize connectedNodes set
-      };
+        blueLevel: 0,
+        transitionDelay: 0,
+        turningBlue: false,
+        connectedNodes: new Set(),
+      }
 
       isIntersecting = nodes.some((node) =>
-        areNodesIntersecting(newNode, node, node === mainNode ? minDistanceFromMain : 0)
-      );
-    } while (isIntersecting);
+        areNodesIntersecting(
+          newNode,
+          node,
+          node === mainNode ? minDistanceFromMain : 0
+        )
+      )
+    } while (isIntersecting)
 
-    newNode.homeX = newNode.x;
-    newNode.homeY = newNode.y;
+    newNode.homeX = newNode.x
+    newNode.homeY = newNode.y
 
     // Calculate distance from the main node for sequential effect
-    const dx = newNode.x - mainNode.x;
-    const dy = newNode.y - mainNode.y;
-    newNode.distanceFromMain = Math.sqrt(dx * dx + dy * dy);
+    const dx = newNode.x - mainNode.x
+    const dy = newNode.y - mainNode.y
+    newNode.distanceFromMain = Math.sqrt(dx * dx + dy * dy)
 
-    nodes.push(newNode);
+    nodes.push(newNode)
   }
 
   // Sort nodes by distance to the main node
-  nodes.sort((a, b) => a.distanceFromMain - b.distanceFromMain);
+  nodes.sort((a, b) => a.distanceFromMain - b.distanceFromMain)
 
-  return nodes;
-};
+  return nodes
+}
 
 const KnowledgeGraph = () => {
-  const [isHoveredText, setIsHoveredText] = useState(false);
-  const canvasRef = useRef(null);
-  const buttonRef = useRef(null); // Ref for the HOLOSCOPE text
-  const nodes = useRef([]);
-  const mousePos = useRef({ x: 0, y: 0 });
-  const isExpanding = useRef(false); // Use ref to track if expanding
-  const maxConnectionDistance = 150; // Maximum distance for connecting nodes
-  const minConnectionDistance = 30; // Minimum distance to maintain a connection
-  const maxConnectionsPerNode = 6; // Maximum number of connections per node
+  const [isHoveredText, setIsHoveredText] = useState(false)
+  const [email, setEmail] = useState("")
+  const [isButtonClicked, setIsButtonClicked] = useState(false)
+  const [shine, setShine] = useState(0)
+  const canvasRef = useRef(null)
+  const textRef = useRef(null)
+  const buttonRef = useRef(null)
+  const nodes = useRef([])
+  const mousePos = useRef({ x: 0, y: 0 })
+  const isExpanding = useRef(false)
+  const maxConnectionDistance = 150
+  const minConnectionDistance = 30
+  const maxConnectionsPerNode = 6
+  const primaryColor = "#0077be" // Your technology blue color
+  const defaultColor = "#0077be" // Default color for the button
+  useEffect(() => {
+    const animateShine = () => {
+      setShine((prevShine) => (prevShine < 100 ? prevShine + 0.4 : 0))
+    }
+    const intervalId = setInterval(animateShine, 20)
+    return () => clearInterval(intervalId)
+  }, [])
+  const handleSubmit = async (e) => {
+    e.preventDefault()
 
-  const handleMouseMove = useCallback((event) => {
-    mousePos.current.x = event.clientX;
-    mousePos.current.y = event.clientY;
+    try {
+      const response = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to subscribe")
+      }
+
+      const data = await response.json()
+      alert(data.message) // You can replace this with a better notification
+
+      // Clear the input field
+      setEmail("")
+    } catch (error) {
+      console.error(error)
+      alert(error.message || "There was an error, please try again later.");
+    }
+  }
+
+  const handleInteractionMove = (event) => {
+    let x, y
+
+    if (event.type === "mousemove") {
+      x = event.clientX
+      y = event.clientY
+    } else if (event.type === "touchmove" || event.type === "touchstart") {
+      const touch = event.touches[0]
+      x = touch.clientX
+      y = touch.clientY
+    }
+
+    mousePos.current.x = x
+    mousePos.current.y = y
 
     if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
+      const rect = buttonRef.current.getBoundingClientRect()
       if (
-        mousePos.current.x >= rect.left &&
-        mousePos.current.x <= rect.right &&
-        mousePos.current.y >= rect.top &&
-        mousePos.current.y <= rect.bottom
+        x >= rect.left &&
+        x <= rect.right &&
+        y >= rect.top &&
+        y <= rect.bottom
       ) {
-        isExpanding.current = true;
-        setIsHoveredText(true);
+        isExpanding.current = true
+        setIsHoveredText(true)
       } else {
-        isExpanding.current = false;
-        setIsHoveredText(false);
+        isExpanding.current = false
+        setIsHoveredText(false)
       }
     }
-  }, []);
+  }
 
   const handleResize = useCallback(() => {
-    const canvas = canvasRef.current;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    nodes.current = generateNodes(100, window.innerWidth, window.innerHeight);
-  }, []);
+    const canvas = canvasRef.current
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+    nodes.current = generateNodes(100, window.innerWidth, window.innerHeight)
+  }, [])
+
+  const handleButtonClick = () => {
+    setIsButtonClicked(true)
+  }
+
+  const handleCloseClick = (e) => {
+    e.stopPropagation()
+    setIsButtonClicked(false)
+  }
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    const { innerWidth: canvasWidth, innerHeight: canvasHeight } = window;
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext("2d")
+    const { innerWidth: canvasWidth, innerHeight: canvasHeight } = window
 
-    nodes.current = generateNodes(100, canvasWidth, canvasHeight);
+    nodes.current = generateNodes(100, canvasWidth, canvasHeight)
 
     const drawCircularMetallicBackground = () => {
-      const mainNode = nodes.current[0];
-
-      // Create a radial gradient for the metallic effect
+      const mainNode = nodes.current[0]
       const gradient = ctx.createRadialGradient(
         mainNode.x,
         mainNode.y,
@@ -138,13 +199,12 @@ const KnowledgeGraph = () => {
         mainNode.x,
         mainNode.y,
         Math.max(canvasWidth, canvasHeight)
-      );
+      )
 
-      gradient.addColorStop(0, 'rgba(245, 245, 245, 1)'); // background color White
-
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    };
+      gradient.addColorStop(0, "rgba(245, 245, 245, 1)") /* background color */
+      ctx.fillStyle = gradient
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+    }
 
     const createConnections = () => {
       nodes.current.forEach((node1) => {
@@ -152,23 +212,19 @@ const KnowledgeGraph = () => {
           .filter((node2) => {
             const distance = Math.sqrt(
               (node1.x - node2.x) ** 2 + (node1.y - node2.y) ** 2
-            );
+            )
             return (
               node1 !== node2 &&
-              distance < maxConnectionDistance && // Only connect if within max distance
+              distance < maxConnectionDistance &&
               node1.connections < maxConnectionsPerNode &&
               node2.connections < maxConnectionsPerNode
-            );
+            )
           })
           .sort((a, b) => {
-            const distA = Math.sqrt(
-              (node1.x - a.x) ** 2 + (node1.y - a.y) ** 2
-            );
-            const distB = Math.sqrt(
-              (node1.x - b.x) ** 2 + (node1.y - b.y) ** 2
-            );
-            return distA - distB;
-          });
+            const distA = Math.sqrt((node1.x - a.x) ** 2 + (node1.y - a.y) ** 2)
+            const distB = Math.sqrt((node1.x - b.x) ** 2 + (node1.y - b.y) ** 2)
+            return distA - distB
+          })
 
         for (const node2 of potentialConnections) {
           if (
@@ -177,38 +233,35 @@ const KnowledgeGraph = () => {
             !node1.connectedNodes.has(node2) &&
             !node2.connectedNodes.has(node1)
           ) {
-            node1.connectedNodes.add(node2);
-            node2.connectedNodes.add(node1);
-            node1.connections++;
-            node2.connections++;
+            node1.connectedNodes.add(node2)
+            node2.connectedNodes.add(node1)
+            node1.connections++
+            node2.connections++
           }
         }
-      });
-    };
+      })
+    }
 
     const updateConnections = () => {
       nodes.current.forEach((node1) => {
-        // Check existing connections
         node1.connectedNodes.forEach((node2) => {
           const distance = Math.sqrt(
             (node1.x - node2.x) ** 2 + (node1.y - node2.y) ** 2
-          );
-          // If nodes are too far apart, disconnect them
+          )
           if (distance > maxConnectionDistance) {
-            node1.connectedNodes.delete(node2);
-            node2.connectedNodes.delete(node1);
-            node1.connections--;
-            node2.connections--;
+            node1.connectedNodes.delete(node2)
+            node2.connectedNodes.delete(node1)
+            node1.connections--
+            node2.connections--
           }
-        });
+        })
 
-        // Attempt to reconnect if under connection limit
         if (node1.connections < maxConnectionsPerNode) {
           const potentialConnections = nodes.current
             .filter((node2) => {
               const distance = Math.sqrt(
                 (node1.x - node2.x) ** 2 + (node1.y - node2.y) ** 2
-              );
+              )
               return (
                 node1 !== node2 &&
                 distance >= minConnectionDistance &&
@@ -217,260 +270,311 @@ const KnowledgeGraph = () => {
                 node2.connections < maxConnectionsPerNode &&
                 !node1.connectedNodes.has(node2) &&
                 !node2.connectedNodes.has(node1)
-              );
+              )
             })
             .sort((a, b) => {
               const distA = Math.sqrt(
                 (node1.x - a.x) ** 2 + (node1.y - a.y) ** 2
-              );
+              )
               const distB = Math.sqrt(
                 (node1.x - b.x) ** 2 + (node1.y - b.y) ** 2
-              );
-              return distA - distB;
-            });
+              )
+              return distA - distB
+            })
 
           for (const node2 of potentialConnections) {
             if (
               node1.connections < maxConnectionsPerNode &&
               node2.connections < maxConnectionsPerNode
             ) {
-              node1.connectedNodes.add(node2);
-              node2.connectedNodes.add(node1);
-              node1.connections++;
-              node2.connections++;
+              node1.connectedNodes.add(node2)
+              node2.connectedNodes.add(node1)
+              node1.connections++
+              node2.connections++
             }
           }
         }
-      });
-    };
+      })
+    }
 
     const drawConnections = () => {
       nodes.current.forEach((node1) => {
         if (node1.connectedNodes && node1.connectedNodes instanceof Set) {
           node1.connectedNodes.forEach((node2) => {
-            ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)'; // connection color for white background
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(node1.x, node1.y);
-            ctx.lineTo(node2.x, node2.y);
-            ctx.stroke();
-          });
+            ctx.strokeStyle = "rgba(200, 200, 200, 0.5)"
+            ctx.lineWidth = 1
+            ctx.beginPath()
+            ctx.moveTo(node1.x, node1.y)
+            ctx.lineTo(node2.x, node2.y)
+            ctx.stroke()
+          })
         }
-      });
-    };
+      })
+    }
 
     const drawNodes = () => {
       nodes.current.forEach((node) => {
-        if (node.isMainNode) {
-          // Gradually increase the glow opacity when expanding
-          if (isExpanding.current) {
-            node.glowOpacity = Math.min(1, node.glowOpacity + 0.05); // Increase gradually
-          } else {
-            node.glowOpacity = Math.max(0, node.glowOpacity - 0.02); // Decrease gradually
-          }
-
-          // Draw the main node with an inverse metallic blue gradient
-          const gradient = ctx.createRadialGradient(
-            node.x,
-            node.y,
-            node.size + 10,
-            node.x,
-            node.y,
-            0
-          );
-
-          gradient.addColorStop(1, 'rgba(64, 64, 64, 0.6)'); // Dark blue at the center
-
-          // // Define the starting and ending sizes for the glow animation with much smaller sizes
-          // const innerGlowSize = node.size * (1 + node.glowOpacity * 0.01); // Smaller inner radius
-          // const outerGlowSize = node.size * (1.3 + node.glowOpacity * 0.1); // Smaller outer radius
-
-          // // Add the glowing effect with a slight blue tint and smaller size
-          // const glowGradient = ctx.createRadialGradient(
-          //   node.x,
-          //   node.y,
-          //   innerGlowSize, // Inner radius grows gradually and is smaller
-          //   node.x,
-          //   node.y,
-          //   outerGlowSize // Outer radius grows gradually and is smaller
-          // );
-          // glowGradient.addColorStop(
-          //   0,
-          //   `rgba(70, 130, 180, ${node.glowOpacity * 0.3})`
-          // ); // Steel blue, more transparent
-          // glowGradient.addColorStop(1, 'rgba(30, 144, 255, 0)'); // Fade out to transparent blue
-
-          // ctx.fillStyle = glowGradient;
-          // ctx.beginPath();
-          // ctx.arc(node.x, node.y, outerGlowSize, 0, Math.PI * 2);
-          // ctx.fill();
-
-          // ctx.fillStyle = gradient;
-          // ctx.beginPath();
-          // ctx.arc(node.x, node.y, node.size, 0, Math.PI * 2);
-          // ctx.fill();
-
-          // Draw the text "Become an AI company" inside the main node when hovered
-          if (node.isHovered) {
-            ctx.fillStyle = 'white';
-            ctx.font = '16px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('Become an AI', node.x, node.y - 10); // First line
-            ctx.fillText('company', node.x, node.y + 10); // Second line
-          }
-        } else {
-          ctx.fillStyle = node.color;
-          ctx.beginPath();
-          ctx.arc(node.x, node.y, node.size, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      });
-    };
+        ctx.fillStyle = node.color
+        ctx.beginPath()
+        ctx.arc(node.x, node.y, node.size, 0, Math.PI * 2)
+        ctx.fill()
+      })
+    }
 
     const draw = () => {
-      drawCircularMetallicBackground();
-      drawConnections();
-      drawNodes();
-    };
+      drawCircularMetallicBackground()
+      drawConnections()
+      drawNodes()
+    }
 
     const updateNodes = () => {
-      const mainNode = nodes.current[0];
+      const mainNode = nodes.current[0]
 
       nodes.current.forEach((node, index) => {
         if (!node.isMainNode) {
-          node.x += node.speedX;
-          node.y += node.speedY;
+          node.x += node.speedX
+          node.y += node.speedY
 
           if (node.x <= node.size || node.x >= canvasWidth - node.size) {
-            node.speedX *= -0.8;
+            node.speedX *= -0.8
           }
           if (node.y <= node.size || node.y >= canvasHeight - node.size) {
-            node.speedY *= -0.8;
+            node.speedY *= -0.8
           }
 
-          const dx = node.x - mainNode.x;
-          const dy = node.y - mainNode.y;
-          const distanceToMain = Math.sqrt(dx * dx + dy * dy);
-          const minDistance = 100;
+          const dx = node.x - mainNode.x
+          const dy = node.y - mainNode.y
+          const distanceToMain = Math.sqrt(dx * dx + dy * dy)
+          const minDistance = 100
           if (distanceToMain < minDistance) {
-            const angle = Math.atan2(dy, dx);
-            const repulsionForce = 0.05;
-            node.speedX += Math.cos(angle) * repulsionForce;
-            node.speedY += Math.sin(angle) * repulsionForce;
+            const angle = Math.atan2(dy, dx)
+            const repulsionForce = 0.05
+            node.speedX += Math.cos(angle) * repulsionForce
+            node.speedY += Math.sin(angle) * repulsionForce
           }
 
           const mouseDistance = Math.sqrt(
             (node.x - mousePos.current.x) ** 2 +
               (node.y - mousePos.current.y) ** 2
-          );
+          )
 
           if (mouseDistance < 300) {
             const angle = Math.atan2(
               node.y - mousePos.current.y,
               node.x - mousePos.current.x
-            );
-            node.speedX += Math.cos(angle) * 0.1;
-            node.speedY += Math.sin(angle) * 0.1;
+            )
+            node.speedX += Math.cos(angle) * 0.1
+            node.speedY += Math.sin(angle) * 0.1
           }
 
-          const homeForce = 0.001;
-          node.speedX += (node.homeX - node.x) * homeForce;
-          node.speedY += (node.homeY - node.y) * homeForce;
+          const homeForce = 0.001
+          node.speedX += (node.homeX - node.x) * homeForce
+          node.speedY += (node.homeY - node.y) * homeForce
 
-          const maxSpeed = 2;
-          const speed = Math.sqrt(node.speedX ** 2 + node.speedY ** 2);
+          const maxSpeed = 2
+          const speed = Math.sqrt(node.speedX ** 2 + node.speedY ** 2)
           if (speed > maxSpeed) {
-            node.speedX = (node.speedX / speed) * maxSpeed;
-            node.speedY = (node.speedY / speed) * maxSpeed;
+            node.speedX = (node.speedX / speed) * maxSpeed
+            node.speedY = (node.speedY / speed) * maxSpeed
           }
 
-          node.speedX *= 0.91;
-          node.speedY *= 0.91;
+          node.speedX *= 0.91
+          node.speedY *= 0.91
 
           if (isExpanding.current) {
-            // Gradual color change to blue when the text is hovered
             if (!node.turningBlue) {
-              const groupIndex = Math.floor(index / 3);
-              node.transitionDelay = groupIndex * 5;
-              node.turningBlue = true;
+              const groupIndex = Math.floor(index / 3)
+              node.transitionDelay = groupIndex * 5
+              node.turningBlue = true
             }
             if (node.transitionDelay <= 0) {
-              node.blueLevel = Math.min(1, node.blueLevel + 0.02);
-              node.color = `rgba(85, 107, 47, ${0.7 + node.blueLevel * 0.3})`; // Sea blue with a metallic touch
+              node.blueLevel = Math.min(1, node.blueLevel + 0.02)
+              node.color = `rgba(0, 92, 158, ${0.7 + node.blueLevel * 0.3})`
             } else {
-              node.transitionDelay -= 1;
+              node.transitionDelay -= 3
             }
           } else {
-            node.turningBlue = false;
-            const groupIndex = Math.floor(index / 3);
-            node.transitionDelay = groupIndex * 100;
-            node.blueLevel = Math.max(0, node.blueLevel - 0.02);
-            node.color = `rgba(160,160,160,255)`;
+            node.turningBlue = false
+            const groupIndex = Math.floor(index / 4)
+            node.transitionDelay = groupIndex * 100
+            node.blueLevel = Math.max(0, node.blueLevel - 0.02)
+            node.color = `rgba(160,160,160,255)`
           }
         }
-      });
+      })
 
-      updateConnections();
-      draw();
-      requestAnimationFrame(updateNodes);
-    };
+      updateConnections()
+      draw()
+      requestAnimationFrame(updateNodes)
+    }
 
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
+    canvas.width = canvasWidth
+    canvas.height = canvasHeight
 
-    drawCircularMetallicBackground();
-    createConnections();
-    draw();
-    updateNodes();
+    drawCircularMetallicBackground()
+    createConnections()
+    draw()
+    updateNodes()
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize)
 
     return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [handleResize, isHoveredText]);
+      window.removeEventListener("resize", handleResize)
+    }
+  }, [handleResize])
 
   return (
     <div
-      className="relative w-full h-full"
-      style={{ position: 'fixed', inset: 0, overflow: 'hidden' }}
-      onMouseMove={handleMouseMove}
+      className="relative w-full h-full "
+      style={{ position: "fixed", inset: 0, overflow: "hidden" }}
+      onMouseMove={handleInteractionMove}
+      onTouchMove={handleInteractionMove}
+      onTouchStart={handleInteractionMove}
     >
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 z-0"
-        style={{ position: 'absolute', inset: 0 }}
+        className="absolute inset-0 z-0 fade-in-node"
+        style={{ position: "absolute", inset: 0 }}
       />
+      {/* Navigation bar background behind HOLOSCOPE */}
+      {isButtonClicked && (
+        <div
+          className="absolute top-0 left-0 w-full h-[60px] bg-white z-20 "
+          style={{
+            boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+            transition: "all 0.5s ease-in-out",
+          }}
+        ></div>
+      )}
       <h1
-        
-        className={`absolute font-bold mb-20 z-10 transition-all duration-[1.5s] ease-in-out  text-[#3B3B3B] ${
-          isHoveredText ? 'text-[4.4rem] ' : 'text-6xl'
+        ref={textRef}
+        className={`absolute font-bold z-30 transition-all duration-[1.5s] ease-in-out  text-[#4A4A4A]  ${
+          isButtonClicked
+            ? "top-2 left-1/2 transform -translate-x-1/2 text-4xl"
+            : isHoveredText
+              ? "text-4xl sm:text-[4.6rem]"
+              : "text-5xl sm:text-6xl"
         }`}
-        id='company-name'
+        id="company-name"
         style={{
-          top: '46%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          pointerEvents: 'none',
+          top: isButtonClicked ? "2%" : "46%",
+          left: "50%",
+          transform: isButtonClicked
+            ? "translate(-50%, 0)"
+            : "translate(-50%, -50%)",
+          pointerEvents: "none",
+          transformOrigin: "center",
         }}
       >
         HOLOSCOPE
       </h1>
       <button
-      ref={buttonRef}
-    className="absolute z-10 px-8 py-4  text-white font-semibold bg-[#6B8E23] rounded-full shadow-md hover:bg-[#556B2F] transition-all duration-300 ease-in-out"
-    style={{
-      top: '55%', // Adjust to place the button right under the text
-      left: '50%',
-      transform: 'translate(-50%, 0)',
-    }}
-    onClick={() => alert('Action triggered!')} // Replace with your actual action
-  >
-    Become an AI Company
-  </button>
-    </div>
-  );
-};
+        ref={buttonRef}
+        className={`absolute z-10 rounded-sm shadow-lg transition-transform duration-1000 ease-out fade-in-node font-montserrat ${
+          isButtonClicked
+            ? "bg-white w-[90%] max-w-[600px] h-auto p-10 flex flex-col justify-start items-start scale-y-100 scale-x-100"
+            : "bg-[#0077be] px-6 py-4 text-white font-semibold hover:bg-[#005c9e]"
+        }`}
+        style={{
+          top: isButtonClicked ? "50%" : "55%",
+          left: "50%",
+          transform: isButtonClicked
+            ? "translate(-50%, -50%) scaleY(1) scaleX(1)"
+            : "translate(-50%, 0) scaleY(0.9) scaleX(0.9)",
+          transformOrigin: "center",
+          transition: "transform 1.8s cubic-bezier(0.2, 0.8, 0.2, 1)",
+          borderRadius: isButtonClicked ? "20px" : "20px",
+          boxShadow: isButtonClicked
+            ? "0 8px 30px rgba(0, 0, 0, 0.15)"
+            : "0 2px 5px rgba(0, 0, 0, 0.1)",
+        }}
+        onClick={!isButtonClicked ? handleButtonClick : undefined}
+      >
+        {!isButtonClicked && (
+          <div
+            style={{
+              position: "absolute",
+              top: "-50%",
+              left: "-50%",
+              right: "-50%",
+              bottom: "-50%",
+              background: `
+            linear-gradient(
+              135deg,
+              rgba(255,255,255,0) ${shine}%,
+              rgba(255,255,255,0.03) ${shine + 10}%,
+              rgba(255,255,255,0.2) ${shine + 20}%,
+              rgba(255,255,255,0.3) ${shine + 30}%,
+              rgba(255,255,255,0.2) ${shine + 40}%,
+              rgba(255,255,255,0.03) ${shine + 50}%,
+              rgba(255,255,255,0) ${shine + 60}%
+            )
+          `,
+              transform: "rotate(-10deg) skew(-10deg)",
+              transition: "opacity 0.3s",
+              opacity: 1,
+              pointerEvents: "none",
+            }}
+          />
+        )}
+        {isButtonClicked ? (
+          <>
+            <button
+              className="absolute top-[-10px]  right-[-10px] flex items-center justify-center w-8 h-8 rounded-full bg-[#0077be] text-white hover:bg-[#005c9e] transition-colors duration-300 ease-in-out"
+              onClick={handleCloseClick}
+              aria-label="Close"
+              style={{
+                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+              }}
+            >
+              ✕
+            </button>
+            <div className="max-w-[500px] ">
+              <h2 className="text-[2.3rem] max-w-[300px] font-semibold mb-4 text-left flex-wrap text-gray-700 font-montserrat">
+                Elevate Your Business!
+              </h2>
 
-export default KnowledgeGraph;
+              <p className="text-left text-sm mb-2 text-gray-500  font-poppins">
+                Imagine a world where running your company feels as natural as
+                breathing. With AI as your silent partner, that world is now
+                within reach. We're not just dreaming of{" "}
+                <span className="font-semibold">
+                  easier business management
+                </span>
+                —we're making it a reality.
+              </p>
+              <p className="text-left text-sm mb-8 text-gray-500  font-semibold font-poppins">
+                Ready to transform how you run your company?
+              </p>
+            </div>
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col sm:flex-row focus-within:bg-white items-stretch sm:bg-gray-100 sm:border border-gray-300 rounded-[15px] overflow-hidden sm:min-w-[500px]"
+            >
+              <input
+                type="email"
+                placeholder="Your email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-1 focus:bg-white mb-2 sm:mb-0 p-3 px-4 max-w-full sm:max-w-[300px] rounded-[15px] outline-none border border-gray-300 sm:border-none bg-gray-100 text-gray-700 placeholder-gray-400"
+                required
+              />
+              <button
+                type="submit"
+                className="bg-[#0077be] font-montserrat text-white px-6 py-3 rounded-[15px] hover:bg-[#005c9e] transition-all duration-300 ease-in-out w-full sm:w-auto mt-2 sm:mt-0"
+              >
+                Start Your Transformation
+              </button>
+            </form>
+          </>
+        ) : (
+          <span style={{ position: "relative", zIndex: 1 }}>
+            Become an AI Company
+          </span>
+        )}
+      </button>
+    </div>
+  )
+}
+
+export default KnowledgeGraph

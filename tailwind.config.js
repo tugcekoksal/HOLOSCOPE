@@ -7,6 +7,14 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        montserrat: ['Montserrat', 'sans-serif'],
+        satoshi: ['Satoshi', 'sans-serif'],
+        roboto: ['Roboto', 'sans-serif'],
+        poppins: ['Poppins', 'sans-serif'],
+        lato: ['Lato', 'sans-serif'],
+        
+      },
       colors: {
        
         background: "var(--background)",
