@@ -412,8 +412,8 @@ const KnowledgeGraph = () => {
     // Adjust node count and minimum distance based on screen size
     const updateSettings = () => {
       if (window.innerWidth <= 768) {
-        setMinDistanceFromMain(10);
-        setNodeCount(50);
+        setMinDistanceFromMain(50);
+        setNodeCount(30);
       } else {
         setMinDistanceFromMain(200);
         setNodeCount(100);
@@ -436,11 +436,6 @@ const KnowledgeGraph = () => {
       onTouchMove={handleInteractionMove}
       onTouchStart={handleInteractionMove}
     >
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 z-0 fade-in-node"
-        style={{ position: "absolute", inset: 0 }}
-      />
       {isButtonClicked && (
         <div
           className="absolute top-0 left-0 w-full h-[60px] bg-white z-20 mb-4"
@@ -450,22 +445,28 @@ const KnowledgeGraph = () => {
           }}
         ></div>
       )}
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 z-0 fade-in-node"
+        style={{ position: "absolute", inset: 0 }}
+      />
+      
       <h1
         ref={textRef}
         className={`absolute font-bold z-30 transition-all duration-[1.5s] ease-in-out text-[#4A4A4A] 
         ${isButtonClicked
           ? "text-4xl sm:text-5xl" // Text size when button is clicked
           : isHoveredText
-          ? "text-4xl sm:text-6xl" // Text size when text is hovered
-          : "text-3xl sm:text-5xl" // Default text size (natural state)
+          ? "text-4xl sm:text-5xl" // Text size when text is hovered
+          : "text-4xl sm:text-5xl" // Default text size (natural state)
         }`}
         id="company-name"
         style={{
-          top: isButtonClicked ? "2%" : "46%",
+          top: isButtonClicked ? "1%" : "46%",
           left: "50%",
           transform: isButtonClicked ? "translate(-50%, 0)" : "translate(-50%, -50%)",
           pointerEvents: "none",
-          transformOrigin: "center",
+          
         }}
       >
         HOLOSCOPE
@@ -475,7 +476,7 @@ const KnowledgeGraph = () => {
         className={`absolute z-10 rounded-sm shadow-lg transition-transform duration-1000 ease-out fade-in-node font-montserrat ${
           isButtonClicked
             ? "bg-white w-[90%] max-w-[600px] h-auto p-10 flex flex-col justify-start items-start scale-y-100 scale-x-100"
-            : "bg-[#0077be] px-6 py-4 text-white font-semibold hover:bg-[#005c9e]"
+            : "bg-[#0077be] px-6 py-4 text-white font-semibold hover:bg-[#005c9e] min-w-[250px] sm:min-w-[200px]"
         }`}
         style={{
           top: isButtonClicked ? "50%" : "55%",
