@@ -7,10 +7,10 @@ const areNodesIntersecting = (node1, node2, minDistance) => {
 };
 
 // Generate nodes with non-overlapping positions and ensure the largest node is in the center
-const generateNodes = (count, canvasWidth, canvasHeight) => {
+const generateNodes = (count, canvasWidth, canvasHeight,minDistanceFromMain) => {
   const nodes = [];
   const mainNodeSize = 10;
-  const minDistanceFromMain = 200;
+  // const minDistanceFromMain = 200;
 
   const mainNode = {
     id: 0,
@@ -78,6 +78,7 @@ const generateNodes = (count, canvasWidth, canvasHeight) => {
 
 const KnowledgeGraph = () => {
   const [isHoveredText, setIsHoveredText] = useState(false);
+  const [minDistanceFromMain, setMinDistanceFromMain] = useState(150); 
   const [email, setEmail] = useState("");
   const [isButtonClicked, setIsButtonClicked] = useState(false);
   const [shine, setShine] = useState(0);
@@ -94,6 +95,15 @@ const KnowledgeGraph = () => {
   const defaultColor = "#0077be"; // Default color for the button
 
   useEffect(() => {
+    const updateMinDistance = () => {
+      if (window.innerWidth <= 768) { // Adjust 768px as the breakpoint for mobile
+        setMinDistanceFromMain(10); // Set a different value for mobile
+      } else {
+        setMinDistanceFromMain(200); // Default value for larger screens
+      }
+    };
+
+    updateMinDistance();
     const animateShine = () => {
       setShine((prevShine) => (prevShine < 100 ? prevShine + 0.4 : 0));
     };
@@ -158,7 +168,7 @@ const KnowledgeGraph = () => {
     const canvas = canvasRef.current;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    nodes.current = generateNodes(100, window.innerWidth, window.innerHeight);
+    nodes.current = generateNodes(100, window.innerWidth, window.innerHeight,minDistanceFromMain);
   }, []);
 
   const handleButtonClick = () => {
@@ -175,7 +185,7 @@ const KnowledgeGraph = () => {
     const ctx = canvas.getContext("2d");
     const { innerWidth: canvasWidth, innerHeight: canvasHeight } = window;
 
-    nodes.current = generateNodes(100, canvasWidth, canvasHeight);
+    nodes.current = generateNodes(100, canvasWidth, canvasHeight,200);
 
     const drawCircularMetallicBackground = () => {
       const mainNode = nodes.current[0];
