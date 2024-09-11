@@ -79,6 +79,7 @@ const generateNodes = (count, canvasWidth, canvasHeight,minDistanceFromMain) => 
 const KnowledgeGraph = () => {
   const [isHoveredText, setIsHoveredText] = useState(false);
   const [minDistanceFromMain, setMinDistanceFromMain] = useState(150); 
+  const [nodeCount, setNodeCount] = useState(50);
   const [email, setEmail] = useState("");
   const [isButtonClicked, setIsButtonClicked] = useState(false);
   const [shine, setShine] = useState(0);
@@ -95,15 +96,7 @@ const KnowledgeGraph = () => {
   const defaultColor = "#0077be"; // Default color for the button
 
   useEffect(() => {
-    const updateMinDistance = () => {
-      if (window.innerWidth <= 768) { // Adjust 768px as the breakpoint for mobile
-        setMinDistanceFromMain(10); // Set a different value for mobile
-      } else {
-        setMinDistanceFromMain(200); // Default value for larger screens
-      }
-    };
-
-    updateMinDistance();
+    
     const animateShine = () => {
       setShine((prevShine) => (prevShine < 100 ? prevShine + 0.4 : 0));
     };
@@ -168,7 +161,7 @@ const KnowledgeGraph = () => {
     const canvas = canvasRef.current;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    nodes.current = generateNodes(100, window.innerWidth, window.innerHeight,minDistanceFromMain);
+    nodes.current = generateNodes(50, window.innerWidth, window.innerHeight,minDistanceFromMain);
   }, []);
 
   const handleButtonClick = () => {
@@ -411,6 +404,18 @@ const KnowledgeGraph = () => {
     createConnections();
     draw();
     updateNodes();
+ 
+      const updateSettings = () => {
+        if (window.innerWidth <= 768) { // Adjust 768px as the breakpoint for mobile
+          setMinDistanceFromMain(10); // Set a different value for mobile
+          setNodeCount(50); // Set fewer nodes for mobile
+        } else {
+          setMinDistanceFromMain(200); // Default value for larger screens
+          setNodeCount(100); // Default number of nodes for larger screens
+        }
+      };
+  
+      updateSettings();
 
     window.addEventListener("resize", handleResize);
 
