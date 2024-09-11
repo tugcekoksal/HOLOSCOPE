@@ -7,10 +7,9 @@ const areNodesIntersecting = (node1, node2, minDistance) => {
 };
 
 // Generate nodes with non-overlapping positions and ensure the largest node is in the center
-const generateNodes = (nodeCount, canvasWidth, canvasHeight,minDistanceFromMain) => {
+const generateNodes = (nodeCount, canvasWidth, canvasHeight, minDistanceFromMain) => {
   const nodes = [];
   const mainNodeSize = 10;
-  // const minDistanceFromMain = 200;
 
   const mainNode = {
     id: 0,
@@ -79,10 +78,10 @@ const generateNodes = (nodeCount, canvasWidth, canvasHeight,minDistanceFromMain)
 const KnowledgeGraph = () => {
   const [isHoveredText, setIsHoveredText] = useState(false);
   const [minDistanceFromMain, setMinDistanceFromMain] = useState(150); 
-  const [nodeCount, setNodeCount] = useState(50);
   const [email, setEmail] = useState("");
   const [isButtonClicked, setIsButtonClicked] = useState(false);
   const [shine, setShine] = useState(0);
+  const [nodeCount, setNodeCount] = useState(100);
   const canvasRef = useRef(null);
   const textRef = useRef(null);
   const buttonRef = useRef(null);
@@ -92,16 +91,21 @@ const KnowledgeGraph = () => {
   const maxConnectionDistance = 150;
   const minConnectionDistance = 30;
   const maxConnectionsPerNode = 6;
-  const primaryColor = "#0077be"; // Your technology blue color
-  const defaultColor = "#0077be"; // Default color for the button
 
   useEffect(() => {
-    
+    // Lock the body scroll when the component mounts
+    document.body.style.overflow = "hidden";
+
     const animateShine = () => {
       setShine((prevShine) => (prevShine < 100 ? prevShine + 0.4 : 0));
     };
+
     const intervalId = setInterval(animateShine, 20);
-    return () => clearInterval(intervalId);
+    return () => {
+      clearInterval(intervalId);
+      // Unlock the body scroll on cleanup
+      document.body.style.overflow = "auto";
+    };
   }, []);
 
   const handleSubmit = async (e) => {
@@ -121,7 +125,7 @@ const KnowledgeGraph = () => {
       }
 
       const data = await response.json();
-      alert(data.message); // You can replace this with a better notification
+      alert(data.message);
 
       setEmail("");
     } catch (error) {
@@ -161,8 +165,8 @@ const KnowledgeGraph = () => {
     const canvas = canvasRef.current;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    nodes.current = generateNodes(nodeCount, window.innerWidth, window.innerHeight,minDistanceFromMain);
-  }, []);
+    nodes.current = generateNodes(nodeCount, window.innerWidth, window.innerHeight, minDistanceFromMain);
+  }, [nodeCount, minDistanceFromMain]);
 
   const handleButtonClick = () => {
     setIsButtonClicked(true);
@@ -178,7 +182,7 @@ const KnowledgeGraph = () => {
     const ctx = canvas.getContext("2d");
     const { innerWidth: canvasWidth, innerHeight: canvasHeight } = window;
 
-    nodes.current = generateNodes(100, canvasWidth, canvasHeight,200);
+    nodes.current = generateNodes(nodeCount, canvasWidth, canvasHeight, minDistanceFromMain);
 
     const drawCircularMetallicBackground = () => {
       const mainNode = nodes.current[0];
@@ -404,25 +408,25 @@ const KnowledgeGraph = () => {
     createConnections();
     draw();
     updateNodes();
- 
-      const updateSettings = () => {
-        if (window.innerWidth <= 768) { // Adjust 768px as the breakpoint for mobile
-          setMinDistanceFromMain(10); // Set a different value for mobile
-          setNodeCount(10); // Set fewer nodes for mobile
-        } else {
-          setMinDistanceFromMain(200); // Default value for larger screens
-          setNodeCount(100); // Default number of nodes for larger screens
-        }
-      };
-  
-      updateSettings();
 
+    // Adjust node count and minimum distance based on screen size
+    const updateSettings = () => {
+      if (window.innerWidth <= 768) {
+        setMinDistanceFromMain(10);
+        setNodeCount(50);
+      } else {
+        setMinDistanceFromMain(200);
+        setNodeCount(100);
+      }
+    };
+
+    updateSettings();
     window.addEventListener("resize", handleResize);
 
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [handleResize]);
+  }, [handleResize, nodeCount, minDistanceFromMain]);
 
   return (
     <div
@@ -437,7 +441,6 @@ const KnowledgeGraph = () => {
         className="absolute inset-0 z-0 fade-in-node"
         style={{ position: "absolute", inset: 0 }}
       />
-      {/* Navigation bar background behind HOLOSCOPE */}
       {isButtonClicked && (
         <div
           className="absolute top-0 left-0 w-full h-[60px] bg-white z-20 mb-4"
@@ -450,20 +453,17 @@ const KnowledgeGraph = () => {
       <h1
         ref={textRef}
         className={`absolute font-bold z-30 transition-all duration-[1.5s] ease-in-out text-[#4A4A4A] 
-  ${isButtonClicked
-    ? "text-4xl sm:text-5xl" // Text size when button is clicked
-    : isHoveredText
-    ? "text-4xl sm:text-6xl" // Text size when text is hovered
-    : "text-3xl sm:text-5xl" // Default text size (natural state)
-  }
-`}
+        ${isButtonClicked
+          ? "text-4xl sm:text-5xl" // Text size when button is clicked
+          : isHoveredText
+          ? "text-4xl sm:text-6xl" // Text size when text is hovered
+          : "text-3xl sm:text-5xl" // Default text size (natural state)
+        }`}
         id="company-name"
         style={{
-          top: isButtonClicked ? "1%" : "46%",
+          top: isButtonClicked ? "2%" : "46%",
           left: "50%",
-          transform: isButtonClicked
-            ? "translate(-50%, 0)"
-            : "translate(-50%, -50%)",
+          transform: isButtonClicked ? "translate(-50%, 0)" : "translate(-50%, -50%)",
           pointerEvents: "none",
           transformOrigin: "center",
         }}
@@ -486,9 +486,7 @@ const KnowledgeGraph = () => {
           transformOrigin: "center",
           transition: "transform 1.8s cubic-bezier(0.2, 0.8, 0.2, 1)",
           borderRadius: isButtonClicked ? "20px" : "20px",
-          boxShadow: isButtonClicked
-            ? "0 8px 30px rgba(0, 0, 0, 0.15)"
-            : "0 2px 5px rgba(0, 0, 0, 0.1)",
+          boxShadow: isButtonClicked ? "0 8px 30px rgba(0, 0, 0, 0.15)" : "0 2px 5px rgba(0, 0, 0, 0.1)",
         }}
         onClick={!isButtonClicked ? handleButtonClick : undefined}
       >
@@ -522,7 +520,7 @@ const KnowledgeGraph = () => {
         {isButtonClicked ? (
           <>
             <button
-              className="absolute top-[-10px]  right-[-10px] flex items-center justify-center w-8 h-8 rounded-full bg-[#0077be] text-white hover:bg-[#005c9e] transition-colors duration-300 ease-in-out"
+              className="absolute top-[-10px] right-[-10px] flex items-center justify-center w-8 h-8 rounded-full bg-[#0077be] text-white hover:bg-[#005c9e] transition-colors duration-300 ease-in-out"
               onClick={handleCloseClick}
               aria-label="Close"
               style={{
@@ -531,21 +529,18 @@ const KnowledgeGraph = () => {
             >
               ✕
             </button>
-            <div className="max-w-[500px] ">
+            <div className="max-w-[500px]">
               <h2 className="text-[2.3rem] max-w-[300px] font-semibold mb-4 text-left flex-wrap text-gray-700 font-montserrat">
                 Elevate Your Business!
               </h2>
 
-              <p className="text-left text-sm mb-2 text-gray-500  font-poppins">
-                Imagine a world where running your company feels as natural as
-                breathing. With AI as your silent partner, that world is now
-                within reach. We're not just dreaming of{" "}
-                <span className="font-semibold">
-                  easier business management
-                </span>
-                —we're making it a reality.
+              <p className="text-left text-sm mb-2 text-gray-500 font-poppins">
+                Imagine a world where running your company feels as natural as breathing. With AI as
+                your silent partner, that world is now within reach. We're not just dreaming of{" "}
+                <span className="font-semibold">easier business management</span>—we're making it a
+                reality.
               </p>
-              <p className="text-left text-sm mb-8 text-gray-500  font-semibold font-poppins">
+              <p className="text-left text-sm mb-8 text-gray-500 font-semibold font-poppins">
                 Ready to transform how you run your company?
               </p>
             </div>
@@ -570,9 +565,7 @@ const KnowledgeGraph = () => {
             </form>
           </>
         ) : (
-          <span style={{ position: "relative", zIndex: 1 }}>
-            Become an AI Company
-          </span>
+          <span style={{ position: "relative", zIndex: 1 }}>Become an AI Company</span>
         )}
       </button>
     </div>
