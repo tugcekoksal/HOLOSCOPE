@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import MovingDots from '../components/MovingDots';
-import Popup from '@/components/PopUp';
+import Popup from '@/components/Popup';
 import ThankYouMessage from '../components/ThankYouMessage';
 import KnowledgeGraph from '../components/MovingDots';
 
