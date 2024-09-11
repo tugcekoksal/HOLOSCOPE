@@ -7,7 +7,7 @@ const areNodesIntersecting = (node1, node2, minDistance) => {
 };
 
 // Generate nodes with non-overlapping positions and ensure the largest node is in the center
-const generateNodes = (count, canvasWidth, canvasHeight,minDistanceFromMain) => {
+const generateNodes = (nodeCount, canvasWidth, canvasHeight,minDistanceFromMain) => {
   const nodes = [];
   const mainNodeSize = 10;
   // const minDistanceFromMain = 200;
@@ -32,7 +32,7 @@ const generateNodes = (count, canvasWidth, canvasHeight,minDistanceFromMain) => 
   };
   nodes.push(mainNode);
 
-  for (let i = 1; i <= count; i++) {
+  for (let i = 1; i <= nodeCount; i++) {
     let newNode;
     let isIntersecting;
 
@@ -161,7 +161,7 @@ const KnowledgeGraph = () => {
     const canvas = canvasRef.current;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    nodes.current = generateNodes(50, window.innerWidth, window.innerHeight,minDistanceFromMain);
+    nodes.current = generateNodes(nodeCount, window.innerWidth, window.innerHeight,minDistanceFromMain);
   }, []);
 
   const handleButtonClick = () => {
@@ -408,7 +408,7 @@ const KnowledgeGraph = () => {
       const updateSettings = () => {
         if (window.innerWidth <= 768) { // Adjust 768px as the breakpoint for mobile
           setMinDistanceFromMain(10); // Set a different value for mobile
-          setNodeCount(50); // Set fewer nodes for mobile
+          setNodeCount(10); // Set fewer nodes for mobile
         } else {
           setMinDistanceFromMain(200); // Default value for larger screens
           setNodeCount(100); // Default number of nodes for larger screens
@@ -449,16 +449,17 @@ const KnowledgeGraph = () => {
       )}
       <h1
         ref={textRef}
-        className={`absolute font-bold z-30 transition-all duration-[1.5s] ease-in-out  text-[#4A4A4A]  ${
-          isButtonClicked
-            ? "top-2 left-1/2 transform -translate-x-1/2 text-4xl"
-            : isHoveredText
-            ? "text-4xl sm:text-[4.6rem]"
-            : "text-5xl sm:text-6xl"
-        }`}
+        className={`absolute font-bold z-30 transition-all duration-[1.5s] ease-in-out text-[#4A4A4A] 
+  ${isButtonClicked
+    ? "text-4xl sm:text-5xl" // Text size when button is clicked
+    : isHoveredText
+    ? "text-4xl sm:text-6xl" // Text size when text is hovered
+    : "text-3xl sm:text-5xl" // Default text size (natural state)
+  }
+`}
         id="company-name"
         style={{
-          top: isButtonClicked ? "2%" : "46%",
+          top: isButtonClicked ? "1%" : "46%",
           left: "50%",
           transform: isButtonClicked
             ? "translate(-50%, 0)"
