@@ -2,12 +2,19 @@ import React, { useRef, useEffect, useCallback, useState } from "react";
 
 // Function to check if two nodes overlap
 const areNodesIntersecting = (node1, node2, minDistance) => {
-  const distance = Math.sqrt((node1.x - node2.x) ** 2 + (node1.y - node2.y) ** 2);
+  const distance = Math.sqrt(
+    (node1.x - node2.x) ** 2 + (node1.y - node2.y) ** 2
+  );
   return distance < node1.size + node2.size + minDistance;
 };
 
 // Generate nodes with non-overlapping positions and ensure the largest node is in the center
-const generateNodes = (nodeCount, canvasWidth, canvasHeight, minDistanceFromMain) => {
+const generateNodes = (
+  nodeCount,
+  canvasWidth,
+  canvasHeight,
+  minDistanceFromMain
+) => {
   const nodes = [];
   const mainNodeSize = 10;
 
@@ -56,7 +63,11 @@ const generateNodes = (nodeCount, canvasWidth, canvasHeight, minDistanceFromMain
       };
 
       isIntersecting = nodes.some((node) =>
-        areNodesIntersecting(newNode, node, node === mainNode ? minDistanceFromMain : 0)
+        areNodesIntersecting(
+          newNode,
+          node,
+          node === mainNode ? minDistanceFromMain : 0
+        )
       );
     } while (isIntersecting);
 
@@ -77,11 +88,16 @@ const generateNodes = (nodeCount, canvasWidth, canvasHeight, minDistanceFromMain
 
 const KnowledgeGraph = () => {
   const [isHoveredText, setIsHoveredText] = useState(false);
-  const [minDistanceFromMain, setMinDistanceFromMain] = useState(150); 
+  const [isExpand, setIsExpanding] = useState(false);
+  const [isFullyExpanded, setIsFullyExpanded] = useState(false);
+  const [minDistanceFromMain, setMinDistanceFromMain] = useState(150);
   const [email, setEmail] = useState("");
   const [isButtonClicked, setIsButtonClicked] = useState(false);
   const [shine, setShine] = useState(0);
   const [nodeCount, setNodeCount] = useState(100);
+  const [buttonText, setButtonText] = useState("Start Your Transformation");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(false);
   const canvasRef = useRef(null);
   const textRef = useRef(null);
   const buttonRef = useRef(null);
@@ -93,9 +109,7 @@ const KnowledgeGraph = () => {
   const maxConnectionsPerNode = 6;
 
   useEffect(() => {
-    // Lock the body scroll when the component mounts
     document.body.style.overflow = "hidden";
-
     const animateShine = () => {
       setShine((prevShine) => (prevShine < 100 ? prevShine + 0.4 : 0));
     };
@@ -103,13 +117,15 @@ const KnowledgeGraph = () => {
     const intervalId = setInterval(animateShine, 20);
     return () => {
       clearInterval(intervalId);
-      // Unlock the body scroll on cleanup
       document.body.style.overflow = "auto";
+      
     };
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setButtonText("Sending...");
 
     try {
       const response = await fetch("/api/subscribe", {
@@ -125,12 +141,15 @@ const KnowledgeGraph = () => {
       }
 
       const data = await response.json();
-      alert(data.message);
-
+      setFormSubmitted(true); // Set formSubmitted to true to trigger the slide animation
+      setButtonText("🥳 Thank You! We received your email.");
       setEmail("");
     } catch (error) {
       console.error(error);
       alert(error.message || "There was an error, please try again later.");
+      setButtonText("Start Your Transformation");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -151,7 +170,12 @@ const KnowledgeGraph = () => {
 
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
-      if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+      if (
+        x >= rect.left &&
+        x <= rect.right &&
+        y >= rect.top &&
+        y <= rect.bottom
+      ) {
         isExpanding.current = true;
         setIsHoveredText(true);
       } else {
@@ -165,16 +189,31 @@ const KnowledgeGraph = () => {
     const canvas = canvasRef.current;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    nodes.current = generateNodes(nodeCount, window.innerWidth, window.innerHeight, minDistanceFromMain);
+    nodes.current = generateNodes(
+      nodeCount,
+      window.innerWidth,
+      window.innerHeight,
+      minDistanceFromMain
+    );
   }, [nodeCount, minDistanceFromMain]);
 
   const handleButtonClick = () => {
     setIsButtonClicked(true);
+    setIsExpanding(true);
+    document.body.style.overflow = 'hidden'; // Lock screen scrolling
+    setTimeout(() => {
+      setIsFullyExpanded(true);
+    }, 50); // Small delay to ensure the initial expansion has started
   };
 
   const handleCloseClick = (e) => {
     e.stopPropagation();
     setIsButtonClicked(false);
+    setFormSubmitted(false);
+    setButtonText("Start Your Transformation");
+    setIsExpanding(false);
+    setIsFullyExpanded(false);
+    document.body.style.overflow = 'auto'; // Unlock screen scrolling
   };
 
   useEffect(() => {
@@ -182,7 +221,12 @@ const KnowledgeGraph = () => {
     const ctx = canvas.getContext("2d");
     const { innerWidth: canvasWidth, innerHeight: canvasHeight } = window;
 
-    nodes.current = generateNodes(nodeCount, canvasWidth, canvasHeight, minDistanceFromMain);
+    nodes.current = generateNodes(
+      nodeCount,
+      canvasWidth,
+      canvasHeight,
+      minDistanceFromMain
+    );
 
     const drawCircularMetallicBackground = () => {
       const mainNode = nodes.current[0];
@@ -348,7 +392,8 @@ const KnowledgeGraph = () => {
           }
 
           const mouseDistance = Math.sqrt(
-            (node.x - mousePos.current.x) ** 2 + (node.y - mousePos.current.y) ** 2
+            (node.x - mousePos.current.x) ** 2 +
+              (node.y - mousePos.current.y) ** 2
           );
 
           if (mouseDistance < 300) {
@@ -409,7 +454,6 @@ const KnowledgeGraph = () => {
     draw();
     updateNodes();
 
-    // Adjust node count and minimum distance based on screen size
     const updateSettings = () => {
       if (window.innerWidth <= 768) {
         setMinDistanceFromMain(50);
@@ -425,13 +469,14 @@ const KnowledgeGraph = () => {
 
     return () => {
       window.removeEventListener("resize", handleResize);
+      document.body.style.overflow = 'auto'; // Reset scrolling on cleanup
     };
   }, [handleResize, nodeCount, minDistanceFromMain]);
 
   return (
     <div
       className="relative w-full h-full"
-      style={{ position: "fixed", inset: 0, overflow: "hidden" }}
+      style={{ position: "fixed", inset: 0 }}
       onMouseMove={handleInteractionMove}
       onTouchMove={handleInteractionMove}
       onTouchStart={handleInteractionMove}
@@ -450,47 +495,58 @@ const KnowledgeGraph = () => {
         className="absolute inset-0 z-0 fade-in-node"
         style={{ position: "absolute", inset: 0 }}
       />
-      
+
       <h1
         ref={textRef}
         className={`absolute font-bold z-30 transition-all duration-[1.5s] ease-in-out text-[#4A4A4A] 
-        ${isButtonClicked
-          ? "text-4xl sm:text-5xl" // Text size when button is clicked
-          : isHoveredText
-          ? "text-4xl sm:text-5xl" // Text size when text is hovered
-          : "text-4xl sm:text-5xl" // Default text size (natural state)
+        ${
+          isButtonClicked
+            ? "text-4xl sm:text-5xl"
+            : isHoveredText
+              ? "text-4xl sm:text-6xl"
+              : "text-4xl sm:text-5xl"
         }`}
         id="company-name"
         style={{
           top: isButtonClicked ? "1%" : "46%",
           left: "50%",
-          transform: isButtonClicked ? "translate(-50%, 0)" : "translate(-50%, -50%)",
+          transform: isButtonClicked
+            ? "translate(-50%, 0)"
+            : "translate(-50%, -50%)",
           pointerEvents: "none",
-          
         }}
       >
         HOLOSCOPE
       </h1>
       <button
         ref={buttonRef}
-        className={`absolute z-10 rounded-sm shadow-lg transition-transform duration-1000 ease-out fade-in-node font-montserrat ${
-          isButtonClicked
-            ? "bg-white w-[90%] max-w-[600px] h-auto p-10 flex flex-col justify-start items-start scale-y-100 scale-x-100"
-            : "bg-[#0077be] px-6 py-4 text-white font-semibold hover:bg-[#005c9e] min-w-[250px] sm:min-w-[200px]"
-        }`}
+        className={`absolute z-10 rounded-sm shadow-lg transition-all duration-1000 ease-out fade-in-node font-montserrat
+    ${isButtonClicked ? "bg-white" : "bg-[#0077be] text-white font-semibold hover:bg-[#005c9e]"}
+  `}
         style={{
-          top: isButtonClicked ? "50%" : "55%",
+          top: isButtonClicked ? "55%" : "55%",
           left: "50%",
-          transform: isButtonClicked
-            ? "translate(-50%, -50%) scaleY(1) scaleX(1)"
-            : "translate(-50%, 0) scaleY(0.9) scaleX(0.9)",
+          transform: `translate(-50%, ${isButtonClicked ? "-50%" : "0%"})`,
+          width: isExpand ? (isFullyExpanded ? "90%" : "300px") : "250px",
+          maxWidth: isFullyExpanded ? "600px" : "none",
+          height: isExpand ? (isFullyExpanded ? "auto" : "100px") : "auto",
+          padding: isButtonClicked
+            ? isFullyExpanded
+              ? "30px"
+              : "5px" // Increased padding when fully expanded
+            : "16px 24px",
           transformOrigin: "center",
-          transition: "transform 1.8s cubic-bezier(0.2, 0.8, 0.2, 1)",
-          borderRadius: isButtonClicked ? "20px" : "20px",
-          boxShadow: isButtonClicked ? "0 8px 30px rgba(0, 0, 0, 0.15)" : "0 2px 5px rgba(0, 0, 0, 0.1)",
+          transition: isExpand
+            ? "all 1.2s cubic-bezier(0.25, 0.1, 0.25, 1)"
+            : "all 0.6s ease-out",
+          borderRadius: "20px",
+          boxShadow: isButtonClicked
+            ? "0 8px 30px rgba(0, 0, 0, 0.15)"
+            : "0 2px 5px rgba(0, 0, 0, 0.1)",
         }}
         onClick={!isButtonClicked ? handleButtonClick : undefined}
       >
+        {" "}
         {!isButtonClicked && (
           <div
             style={{
@@ -500,17 +556,17 @@ const KnowledgeGraph = () => {
               right: "-50%",
               bottom: "-50%",
               background: `
-            linear-gradient(
-              135deg,
-              rgba(255,255,255,0) ${shine}%,
-              rgba(255,255,255,0.03) ${shine + 10}%,
-              rgba(255,255,255,0.2) ${shine + 20}%,
-              rgba(255,255,255,0.3) ${shine + 30}%,
-              rgba(255,255,255,0.2) ${shine + 40}%,
-              rgba(255,255,255,0.03) ${shine + 50}%,
-              rgba(255,255,255,0) ${shine + 60}%
-            )
-          `,
+              linear-gradient(
+                135deg,
+                rgba(255,255,255,0) ${shine}%,
+                rgba(255,255,255,0.03) ${shine + 10}%,
+                rgba(255,255,255,0.2) ${shine + 20}%,
+                rgba(255,255,255,0.3) ${shine + 30}%,
+                rgba(255,255,255,0.2) ${shine + 40}%,
+                rgba(255,255,255,0.03) ${shine + 50}%,
+                rgba(255,255,255,0) ${shine + 60}%
+              )
+            `,
               transform: "rotate(-10deg) skew(-10deg)",
               transition: "opacity 0.3s",
               opacity: 1,
@@ -518,10 +574,10 @@ const KnowledgeGraph = () => {
             }}
           />
         )}
-        {isButtonClicked ? (
+        {isFullyExpanded ? (
           <>
             <button
-              className="absolute top-[-10px] right-[-10px] flex items-center justify-center w-8 h-8 rounded-full bg-[#0077be] text-white hover:bg-[#005c9e] transition-colors duration-300 ease-in-out"
+              className="absolute top-[-10px] right-[-10px]  flex items-center justify-center w-8 h-8 rounded-full bg-[#0077be] text-white hover:bg-[#005c9e] transition-colors duration-300 ease-in-out"
               onClick={handleCloseClick}
               aria-label="Close"
               style={{
@@ -530,43 +586,90 @@ const KnowledgeGraph = () => {
             >
               ✕
             </button>
-            <div className="max-w-[500px]">
-              <h2 className="text-[2.3rem] max-w-[300px] font-semibold mb-4 text-left flex-wrap text-gray-700 font-montserrat">
+            <div className="max-w-[500px] ">
+              <h2
+                className={` ${
+                  formSubmitted
+                    ? "max-w-[500px] text-[2rem]"
+                    : "max-w-[300px] text-[2.3rem]"
+                } font-semibold mb-4 text-left flex-wrap text-gray-700 font-montserrat`}
+              >
                 Elevate Your Business!
               </h2>
 
               <p className="text-left text-sm mb-2 text-gray-500 font-poppins">
-                Imagine a world where running your company feels as natural as breathing. With AI as
-                your silent partner, that world is now within reach. We're not just dreaming of{" "}
-                <span className="font-semibold">easier business management</span>—we're making it a
-                reality.
+                Imagine a world where running your company feels as natural as
+                breathing. With AI as your silent partner, that world is now
+                within reach. We're not just dreaming of{" "}
+                <span className="font-semibold">
+                  easier business management
+                </span>
+                —we're making it a reality.
               </p>
-              <p className="text-left text-sm mb-8 text-gray-500 font-semibold font-poppins">
-                Ready to transform how you run your company?
-              </p>
+
+              {!formSubmitted && (
+                <p className="text-left text-sm mb-8 text-gray-500 font-semibold font-poppins">
+                  Ready to transform how you run your company?
+                </p>
+              )}
             </div>
             <form
               onSubmit={handleSubmit}
-              className="flex flex-col sm:flex-row focus-within:bg-white items-stretch sm:bg-gray-100 sm:border border-gray-300 rounded-[15px] overflow-hidden sm:min-w-[500px]"
+              className={`relative flex flex-col sm:flex-row items-stretch sm:bg-gray-100 sm:border border-gray-300 rounded-[15px] overflow-hidden sm:min-w-[500px] ${
+                formSubmitted ? "duration-700" : ""
+              }`}
+              style={{
+                overflow: "hidden",
+                transition: "all 0.5s ease-in-out",
+                maxWidth: "100%",
+                minHeight: "60px", // Ensure the form retains height
+              }}
             >
-              <input
-                type="email"
-                placeholder="Your email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 focus:bg-white mb-2 sm:mb-0 p-3 px-4 max-w-full sm:max-w-[300px] rounded-[15px] outline-none border border-gray-300 sm:border-none bg-gray-100 text-gray-700 placeholder-gray-400"
-                required
-              />
+              {!formSubmitted && (
+                <input
+                  type="email"
+                  placeholder="Your email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="flex-1 focus:bg-white mb-2 sm:mb-0 p-3 px-4 max-w-full sm:max-w-[300px] rounded-[15px] outline-none border border-gray-300 sm:border-none bg-gray-100 text-gray-700 placeholder-gray-400"
+                  required
+                />
+              )}
               <button
                 type="submit"
-                className="bg-[#0077be] font-montserrat text-white px-6 py-3 rounded-[15px] hover:bg-[#005c9e] transition-all duration-300 ease-in-out w-full sm:w-auto mt-2 sm:mt-0"
+                className={`bg-[#0077be] font-montserrat text-white px-6 py-3 rounded-[15px] hover:bg-[#005c9e] transition-all duration-700 ease-in-out mt-2 sm:mt-0 font-semibold`}
+                style={{
+                  width: formSubmitted ? "100%" : "52%",
+                  minWidth: "40%",
+                  transition:
+                    "width 0.7s ease-in-out, background-color 0.7s ease-in-out",
+                  borderRadius: "15px",
+                  position: formSubmitted ? "absolute" : "static",
+                  top: formSubmitted ? 0 : "auto",
+                  left: formSubmitted ? 0 : "auto",
+                  right: formSubmitted ? 0 : "auto",
+                  bottom: formSubmitted ? 0 : "auto",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                disabled={isSubmitting || formSubmitted}
               >
-                Start Your Transformation
+                <span className="font-semibold">{buttonText}</span>
               </button>
             </form>
           </>
         ) : (
-          <span style={{ position: "relative", zIndex: 1 }}>Become an AI Company</span>
+          <span
+            style={{
+              position: "relative",
+              zIndex: 1,
+              opacity: isExpand ? 0 : 1,
+              transition: "opacity 0.3s",
+            }}
+          >
+            Become an AI Company
+          </span>
         )}
       </button>
     </div>
