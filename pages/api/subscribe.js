@@ -1,6 +1,8 @@
 // pages/api/subscribe.js
-import { connectToDatabase } from '../../lib/mongodb'; // Ensure this path is correct
+import { connectToDatabase } from '../../lib/mongodb';
+import { verify } from 'jsonwebtoken';
 
+const SECRET_KEY = process.env.JWT_SECRET;
 
 export default async function handler(req, res) {
   try {
@@ -13,7 +15,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ message: 'Email is required' });
       }
 
-      // Optional: Check if email already exists
+      // Check if email already exists
       const existingEmail = await db.collection('subscribers').findOne({ email });
       if (existingEmail) {
         return res.status(400).json({ message: 'Email already subscribed' });
@@ -24,9 +26,31 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'GET') {
+      // Check authentication for GET requests
+      const { adminToken } = req.cookies;
+      if (!adminToken) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+
+      try {
+        verify(adminToken, SECRET_KEY);
+      } catch (error) {
+        return res.status(401).json({ message: 'Invalid token' });
+      }
+
       // Fetch all subscribers
-      const subscribers = await db.collection('subscribers').find().toArray();
-      return res.status(200).json({ subscribers });
+      const subscribers = await db.collection('subscribers')
+        .find()
+        .sort({ createdAt: -1 })
+        .toArray();
+      
+      return res.status(200).json({
+        subscribers: subscribers.map(sub => ({
+          ...sub,
+          _id: sub._id.toString(),
+          createdAt: sub.createdAt.toISOString()
+        }))
+      });
     }
 
     // If method is not POST or GET, handle method not allowed
@@ -34,7 +58,6 @@ export default async function handler(req, res) {
     res.status(405).end(`Method ${req.method} Not Allowed`);
 
   } catch (error) {
-    // Log the detailed error for debugging
     console.error('Error in /api/subscribe:', error);
     return res.status(500).json({ message: 'Something went wrong', error: error.message });
   }

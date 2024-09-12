@@ -1,28 +1,47 @@
 // pages/dashboard.js
 import React, { useEffect, useState } from 'react';
-// import { connectToDatabase } from '../lib/mongodb'; // Adjust the path if necessary
+import { useRouter } from 'next/router';
 
 const Dashboard = () => {
   const [subscribers, setSubscribers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    // Fetch subscribers from your API
-    const fetchSubscribers = async () => {
+    const checkAuthAndFetchSubscribers = async () => {
       try {
-        const response = await fetch('/api/subscribe'); // Ensure your API route exists and works
-        const data = await response.json();
-        setSubscribers(data.subscribers);
+        // Check authentication
+        const authResponse = await fetch('/api/check-auth');
+        if (!authResponse.ok) {
+          router.push('/admin-signin');
+          return;
+        }
+
+        // Fetch subscribers
+        const subscribersResponse = await fetch('/api/subscribe');
+        if (subscribersResponse.ok) {
+          const data = await subscribersResponse.json();
+          setSubscribers(data.subscribers);
+        } else {
+          console.error('Failed to fetch subscribers');
+        }
       } catch (error) {
-        console.error('Error fetching subscribers:', error);
+        console.error('Error:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchSubscribers();
-  }, []);
+    checkAuthAndFetchSubscribers();
+  }, [router]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
       <table className="table-auto w-full mt-4">
         <thead>
           <tr>
