@@ -476,7 +476,7 @@ const KnowledgeGraph = () => {
   return (
     <div
       className="relative w-full h-full"
-      style={{ position: "fixed", inset: 0 }}
+      style={{ position: "fixed", inset: 0, overflow: "hidden" }}
       onMouseMove={handleInteractionMove}
       onTouchMove={handleInteractionMove}
       onTouchStart={handleInteractionMove}
