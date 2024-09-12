@@ -197,20 +197,13 @@ const KnowledgeGraph = () => {
       minDistanceFromMain
     );
   }, [nodeCount, minDistanceFromMain]);
-  useEffect(() => {
-    // Lock or unlock the scroll based on button click state
-    if (isButtonClicked) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-  }, [isButtonClicked]);
+
   
 
   const handleButtonClick = () => {
     setIsButtonClicked(true);
     setIsExpanding(true);
-    document.body.style.overflow = 'hidden'; // Lock screen scrolling
+    
     setTimeout(() => {
       setIsFullyExpanded(true);
     }, 50); // Small delay to ensure the initial expansion has started
@@ -479,7 +472,7 @@ const KnowledgeGraph = () => {
 
     return () => {
       window.removeEventListener("resize", handleResize);
-      document.body.style.overflow = 'auto'; // Reset scrolling on cleanup
+    
     };
   }, [handleResize, nodeCount, minDistanceFromMain]);
 
