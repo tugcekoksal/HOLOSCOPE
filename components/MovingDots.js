@@ -116,8 +116,9 @@ const KnowledgeGraph = () => {
 
     const intervalId = setInterval(animateShine, 20);
     return () => {
-      clearInterval(intervalId);
       document.body.style.overflow = "auto";
+      clearInterval(intervalId);
+     
       
     };
   }, []);
@@ -196,6 +197,15 @@ const KnowledgeGraph = () => {
       minDistanceFromMain
     );
   }, [nodeCount, minDistanceFromMain]);
+  useEffect(() => {
+    // Lock or unlock the scroll based on button click state
+    if (isButtonClicked) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+  }, [isButtonClicked]);
+  
 
   const handleButtonClick = () => {
     setIsButtonClicked(true);
