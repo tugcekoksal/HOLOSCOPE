@@ -1,4 +1,3 @@
-// pages/dashboard.js
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 

@@ -50,3 +50,8 @@ body {
   animation: fadeInNode 1.9s ease-in-out forwards;
 }
 
+@media (max-width: 768px) {
+  .mobile-height {
+    height: 480px !important; /* Override the height on mobile */
+  }
+}

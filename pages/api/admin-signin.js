@@ -12,7 +12,7 @@ export default function handler(req, res) {
   const { username, password } = req.body;
 
   // In a real application, you would check these credentials against a database
-  if (username === 'admin' && password === 'password') {
+  if (username === 'admin12' && password === 'koksal1234') {
     const token = sign({ username }, SECRET_KEY, { expiresIn: '1h' });
     const serialized = serialize('adminToken', token, {
       httpOnly: true,
@@ -21,6 +21,7 @@ export default function handler(req, res) {
       maxAge: 3600,
       path: '/',
     });
+    console.log('serialized:',serialized)
 
     res.setHeader('Set-Cookie', serialized);
     res.status(200).json({ message: 'Success' });

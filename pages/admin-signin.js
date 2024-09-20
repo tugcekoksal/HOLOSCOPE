@@ -14,6 +14,7 @@ const AdminSignIn = () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
     });
+    console.log(response)
 
     if (response.ok) {
       router.push('/dashboard');
