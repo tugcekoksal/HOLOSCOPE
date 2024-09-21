@@ -19,15 +19,10 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4 relative overflow-hidden m-0">
       <KnowledgeGraph />
       <div id="container" className="text-center relative z-10">
-        {/* <h1 id="company-name" className="text-7xl font-bold mb-20 text-w">Holoscope</h1> */}
-        {/* <div 
-          id="ball" 
-          className="w-24 h-24 bg-blue-500 rounded-full mx-auto mb-8 animate-pulse cursor-pointer"
-          onClick={handleBallClick}
-        /> */}
+       
         {showPopup && <Popup onStartTransformation={handleStartTransformation} />}
         {showThankYou && <ThankYouMessage />}
       </div>

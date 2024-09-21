@@ -7,12 +7,12 @@ const Notification = ({ message, onClose }) => {
     // Fade out the notification after 2 seconds
     const hideTimer = setTimeout(() => {
       setVisible(false); // Start the fade-out process
-    }, 2000);
+    }, 2500);
 
     // Call onClose after the fade-out completes (after 2.5 seconds)
     const closeTimer = setTimeout(() => {
       onClose(); // Reset the parent state after the notification is hidden
-    }, 2500);
+    }, 3000);
 
     // Clean up the timers when the component is unmounted
     return () => {
@@ -26,7 +26,7 @@ const Notification = ({ message, onClose }) => {
 
   return (
     <div
-      className={`fixed bottom-4 right-4 bg-[#0077be] text-white px-[40px] py-[30px] font-bold rounded-md shadow-md transition-opacity duration-500 ${
+      className={`fixed bottom-4 mx-4 md:mx-0 right-0 md:right-4 bg-[#0077be] text-white px-[20px] md:px-[40px] py-[15px] md:py-[30px] font-bold rounded-md shadow-md transition-opacity duration-500 ${
         visible ? "opacity-100" : "opacity-0"
       }`}
       style={{

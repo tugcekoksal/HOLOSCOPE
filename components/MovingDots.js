@@ -478,7 +478,7 @@ const KnowledgeGraph = () => {
 
     const updateSettings = () => {
       if (window.innerWidth <= 768) {
-        setMinDistanceFromMain(50)
+        setMinDistanceFromMain(150)
         setNodeCount(30)
       } else {
         setMinDistanceFromMain(200)
@@ -534,7 +534,7 @@ const KnowledgeGraph = () => {
 
       <h1
         ref={textRef}
-        className={`absolute font-bold z-30 transition-all duration-[1s] ease-in-out text-[#4A4A4A] 
+        className={`absolute font-bold z-30 transition-all duration-[0.5s] md:duration-[1s] ease-in-out text-[#4A4A4A] 
         ${
           isButtonClicked
             ? "text-4xl sm:text-5xl"
