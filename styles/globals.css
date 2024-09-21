@@ -58,3 +58,6 @@ body {
     height: 500px !important; /* Override the height on mobile */
   }
 }
+.navbar {
+  padding-top: env(safe-area-inset-top);
+}
