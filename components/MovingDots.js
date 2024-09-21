@@ -17,12 +17,12 @@ const generateNodes = (
   minDistanceFromMain
 ) => {
   const nodes = []
-  const mainNodeSize = 10
+  const mainNodeSize = 30
 
   const mainNode = {
     id: 0,
     x: canvasWidth / 2,
-    y: canvasHeight / 2 + 50,
+    y: canvasHeight / 2 + 0,
     homeX: canvasWidth / 2,
     homeY: canvasHeight / 2 + 100,
     size: mainNodeSize,
@@ -88,6 +88,7 @@ const generateNodes = (
 }
 
 const KnowledgeGraph = () => {
+  const [emailError, setEmailError] = useState("") // State to track email validation errors
   const [isHoveredText, setIsHoveredText] = useState(false)
   const [isExpand, setIsExpanding] = useState(false)
   const [isFullyExpanded, setIsFullyExpanded] = useState(false)
@@ -99,7 +100,6 @@ const KnowledgeGraph = () => {
   const [shine, setShine] = useState(0)
   const [nodeCount, setNodeCount] = useState(100)
   const [buttonText, setButtonText] = useState("Start Your Transformation")
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [notification, setNotification] = useState(false)
   const [notificationMessage, setNotificationMessage] = useState("")
   const [formSubmitted, setFormSubmitted] = useState(false)
@@ -128,7 +128,15 @@ const KnowledgeGraph = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setIsSubmitting(true)
+
+    // Custom email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setEmailError("Please enter a valid email address.")
+      return
+    }
+
+    setEmailError("") // Reset the error if the email is valid
     setButtonText("Sending...")
 
     try {
@@ -145,22 +153,20 @@ const KnowledgeGraph = () => {
       }
 
       const data = await response.json()
-      setFormSubmitted(true) // Set formSubmitted to true to trigger the slide animation
+      setFormSubmitted(true)
 
-      setEmail("")
-
-      // Close the pop-up and show an alert
-      handleCloseClick(e)
+      setEmail("") // Clear email field on successful submission
+      handleCloseClick(e) // Close the form popup
       setNotification(true)
       setNotificationMessage(
         "🎉 Congratulations! Your email registered successfully!"
       )
     } catch (error) {
       console.error(error)
-      alert(error.message || "There was an error, please try again later.")
+      setEmailError(
+        error.message || "There was an error, please try again later."
+      )
       setButtonText("Start Your Transformation")
-    } finally {
-      setIsSubmitting(false)
     }
   }
   const handleNotificationClose = () => {
@@ -236,6 +242,7 @@ const KnowledgeGraph = () => {
     setIsExpanding(false)
     setIsFullyExpanded(false)
     setIsTextVisible(false)
+    setEmailError(false)
   }
 
   useEffect(() => {
@@ -478,8 +485,8 @@ const KnowledgeGraph = () => {
 
     const updateSettings = () => {
       if (window.innerWidth <= 768) {
-        setMinDistanceFromMain(200)
-        setNodeCount(30)
+        setMinDistanceFromMain(150)
+        setNodeCount(50)
       } else {
         setMinDistanceFromMain(200)
         setNodeCount(100)
@@ -567,7 +574,7 @@ const KnowledgeGraph = () => {
           transform: "translate(-50%, -50%)", // Maintain centered positioning
           width: isExpand ? (isFullyExpanded ? "90%" : "300px") : "250px",
           maxWidth: isFullyExpanded ? "500px" : "none",
-          height: isExpand ? (isFullyExpanded ? "350px" : "100px") : "auto",
+          height: isExpand ? (isFullyExpanded ? "400px" : "100px") : "auto",
           padding: isButtonClicked
             ? isFullyExpanded
               ? "30px"
@@ -655,6 +662,7 @@ const KnowledgeGraph = () => {
             </div>
             <form
               onSubmit={handleSubmit}
+              noValidate
               style={{
                 opacity: isTextVisible ? 1 : 0, // Form fades in when fully expanded
                 transition: "opacity 1s ease-in-out", // Smooth fade-in transition
@@ -668,6 +676,7 @@ const KnowledgeGraph = () => {
                   }
                 `}
               </style>
+              
               <input
                 type="email"
                 placeholder="Your email address"
@@ -676,7 +685,12 @@ const KnowledgeGraph = () => {
                 className="focus:bg-white mb-2 sm:mb-0 p-3 px-4 w-full sm:flex-grow rounded-[15px] outline-none border border-gray-300  bg-gray-100 text-gray-700 placeholder-gray-400  placeholder-opacity-75 "
                 required
               />
-
+              {/* Show error message */}
+              {emailError && (
+                <p className="text-red-500 text-sm font-medium ">
+                  {emailError}
+                </p>
+              )}
               <button
                 type="submit"
                 className="bg-[#0077be] font-montserrat text-white px-6 py-3 w-full sm:flex-grow rounded-[15px] hover:bg-[#005c9e] mt-2 sm:mt-0 font-semibold"
