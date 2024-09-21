@@ -99,7 +99,7 @@ const KnowledgeGraph = () => {
   const [isButtonClicked, setIsButtonClicked] = useState(false)
   const [shine, setShine] = useState(0)
   const [nodeCount, setNodeCount] = useState(100)
-  const [buttonText, setButtonText] = useState("Start Your Transformation")
+  const [buttonText, setButtonText] = useState("C'est parti !")
   const [notification, setNotification] = useState(false)
   const [notificationMessage, setNotificationMessage] = useState("")
   const [formSubmitted, setFormSubmitted] = useState(false)
@@ -166,7 +166,7 @@ const KnowledgeGraph = () => {
       setEmailError(
         error.message || "There was an error, please try again later."
       )
-      setButtonText("Start Your Transformation")
+      setButtonText("C'est parti !")
     }
   }
   const handleNotificationClose = () => {
@@ -238,7 +238,7 @@ const KnowledgeGraph = () => {
     e.stopPropagation()
     setIsButtonClicked(false)
     setFormSubmitted(false)
-    setButtonText("Start Your Transformation")
+    setButtonText("C'est parti !")
     setIsExpanding(false)
     setIsFullyExpanded(false)
     setIsTextVisible(false)
@@ -526,7 +526,7 @@ const KnowledgeGraph = () => {
 
       {isButtonClicked && (
         <div
-          className="absolute top-0 left-0 w-full h-[60px] bg-white z-20 mb-4"
+          className={`absolute top-0 left-0 w-full ${isMobile?'h-[60px]':'h-[70px]'} bg-white z-20 mb-4`}
           style={{
             boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
             transition: "all 0.5s ease-in-out",
@@ -548,17 +548,17 @@ const KnowledgeGraph = () => {
 
       <h1
         ref={textRef}
-        className={`absolute font-bold z-30 transition-all duration-[0.5s] md:duration-[0.7s] ease-in-out text-[#4A4A4A] 
+        className={`absolute font-bold z-30 transition-all duration-[0.5s] md:duration-[0.7s] ease-in-out text-[#004772] 
         ${
           isButtonClicked
-            ? "text-4xl sm:text-5xl"
+            ? "text-5xl sm:text-6xl"
             : isHoveredText
-              ? "text-4xl sm:text-6xl"
-              : "text-4xl sm:text-5xl"
+              ? "text-5xl sm:text-7xl"
+              : "text-5xl sm:text-6xl"
         }`}
         id="company-name"
         style={{
-          top: isButtonClicked ? "1.5%" : "46%",
+          top: isButtonClicked ? isMobile? "0.7%": "0.3%" : "45%",
           left: "50%",
           transform: isButtonClicked
             ? "translate(-50%, 0)"
@@ -566,7 +566,7 @@ const KnowledgeGraph = () => {
           pointerEvents: "none",
         }}
       >
-        HOLOSCOPE
+       holoscope
       </h1>
       <button
         ref={buttonRef}
@@ -646,24 +646,18 @@ const KnowledgeGraph = () => {
               <h2
                 className={` mb-4 text-[2rem] text-left flex-wrap text-gray-700 font-montserrat`}
               >
-                Elevate Your Business!
+                Montez dans le train ! 🚂
+
               </h2>
 
-              <p className="text-left text-sm mb-2 font-normal text-gray-500 font-montserrat">
-                Imagine a world where running your company feels as natural as
-                breathing. With AI as your silent partner, that world is now
-                within reach. We're not just dreaming of
-                <span className="font-semibold mx-2">
-                  easier business management
-                </span>
-                —we're making it a reality.
+              <p className="text-left text-sm mb-8 font-normal text-gray-500 font-montserrat">
+              Vos employés utilisent ChatGPT, top ! Au-delà de ça, vous ne savez pas comment tirer partie de cette révolution de l’IA pour faire           
+                 <span className="font-semibold mx-2">exploser votre chiffre d’affaires ?
+                </span>Ne restez pas sur le quai, montez dans le train — notre plateforme est faite pour ça ;)
+                
               </p>
 
-              {!formSubmitted && (
-                <p className="text-left text-sm mb-8 text-gray-500 font-semibold font-poppins">
-                  Ready to transform how you run your company?
-                </p>
-              )}
+              
             </div>
             <form
               onSubmit={handleSubmit}
@@ -713,7 +707,7 @@ const KnowledgeGraph = () => {
               transition: "opacity 0.3s",
             }}
           >
-            Become an AI Company
+            🤖 + 👨 = ♥️
           </span>
         )}
       </button>
