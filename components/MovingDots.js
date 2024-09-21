@@ -577,14 +577,14 @@ const KnowledgeGraph = () => {
           top: "55%", // Always center vertically
           left: "50%", // Always center horizontally
           transform: "translate(-50%, -50%)", // Maintain centered positioning
-          width: isExpand ? (isFullyExpanded ? "90%" : "300px") : "250px",
+          width: isExpand ? (isFullyExpanded ? "90%" : "300px") : "200px",
           maxWidth: isFullyExpanded ? "500px" : "none",
           height: isExpand ? (isFullyExpanded ? "400px" : "100px") : "auto",
           padding: isButtonClicked
             ? isFullyExpanded
               ? "30px"
               : "16px 24px" // Symmetrical padding
-            : "16px 24px",
+            : "14px 20px",
           transformOrigin: "center", // Center the expansion
           transition: isExpand
             ? "width 0.6s ease-out, padding 1.2s ease-out, height 0.6s cubic-bezier(0.25, 0.1, 0.25, 1)" // Slower height transition
