@@ -543,7 +543,7 @@ const KnowledgeGraph = () => {
 
       <h1
         ref={textRef}
-        className={`absolute font-bold z-30 transition-all duration-[0.5s] md:duration-[1s] ease-in-out text-[#4A4A4A] 
+        className={`absolute font-bold z-30 transition-all duration-[0.5s] md:duration-[0.7s] ease-in-out text-[#4A4A4A] 
         ${
           isButtonClicked
             ? "text-4xl sm:text-5xl"
