@@ -132,7 +132,7 @@ const KnowledgeGraph = () => {
     // Custom email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
-      setEmailError("Please enter a valid email address.")
+      setEmailError("Veuillez entrer une adresse e-mail valide.")
       return
     }
 
@@ -159,12 +159,12 @@ const KnowledgeGraph = () => {
       handleCloseClick(e) // Close the form popup
       setNotification(true)
       setNotificationMessage(
-        "🎉 Congratulations! Your email registered successfully!"
+        "🎉 Félicitations ! Votre email a été enregistré avec succès!"
       )
     } catch (error) {
       console.error(error)
       setEmailError(
-        error.message || "There was an error, please try again later."
+        error.message || "Il y a eu une erreur, veuillez réessayer plus tard."
       )
       setButtonText("C'est parti !")
     }
