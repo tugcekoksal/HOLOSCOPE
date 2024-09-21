@@ -92,7 +92,7 @@ const KnowledgeGraph = () => {
   const [isExpand, setIsExpanding] = useState(false)
   const [isFullyExpanded, setIsFullyExpanded] = useState(false)
   const [isTextVisible, setIsTextVisible] = useState(false)
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(false)
   const [minDistanceFromMain, setMinDistanceFromMain] = useState(150)
   const [email, setEmail] = useState("")
   const [isButtonClicked, setIsButtonClicked] = useState(false)
@@ -214,19 +214,19 @@ const KnowledgeGraph = () => {
   }, [nodeCount, minDistanceFromMain])
 
   const handleButtonClick = () => {
-    setIsButtonClicked(true);
-    setIsExpanding(true);
-  
+    setIsButtonClicked(true)
+    setIsExpanding(true)
+
     // First, fully expand the button
     setTimeout(() => {
-      setIsFullyExpanded(true);
-  
+      setIsFullyExpanded(true)
+
       // Then, wait for a brief delay before making the text visible
       setTimeout(() => {
-        setIsTextVisible(true); // Now show the text
-      }, 200); // Adjust the delay as needed (2 seconds in this case)
-    }, 50); // Adjust this to match the button's transition duration
-  };
+        setIsTextVisible(true) // Now show the text
+      }, 200) // Adjust the delay as needed (2 seconds in this case)
+    }, 50) // Adjust this to match the button's transition duration
+  }
 
   const handleCloseClick = (e) => {
     e.stopPropagation()
@@ -235,7 +235,7 @@ const KnowledgeGraph = () => {
     setButtonText("Start Your Transformation")
     setIsExpanding(false)
     setIsFullyExpanded(false)
-    setIsTextVisible(false);
+    setIsTextVisible(false)
   }
 
   useEffect(() => {
@@ -478,7 +478,7 @@ const KnowledgeGraph = () => {
 
     const updateSettings = () => {
       if (window.innerWidth <= 768) {
-        setMinDistanceFromMain(150)
+        setMinDistanceFromMain(200)
         setNodeCount(30)
       } else {
         setMinDistanceFromMain(200)
@@ -489,11 +489,11 @@ const KnowledgeGraph = () => {
     updateSettings()
     const checkMobile = () => {
       if (typeof window !== "undefined") {
-        setIsMobile(window.innerWidth <= 768);
+        setIsMobile(window.innerWidth <= 768)
       }
-    };
+    }
 
-    checkMobile();
+    checkMobile()
     window.addEventListener("resize", handleResize)
 
     return () => {
@@ -523,6 +523,8 @@ const KnowledgeGraph = () => {
           style={{
             boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
             transition: "all 0.5s ease-in-out",
+            marginTop: 0,
+            paddingTop: 0,
           }}
         ></div>
       )}
@@ -559,28 +561,28 @@ const KnowledgeGraph = () => {
         className={`absolute flex flex-col items-center justify-center z-10 rounded-sm shadow-lg font-semibold transition-all duration-1000 ease-out fade-in-node font-montserrat
     ${isButtonClicked ? "bg-white" : "bg-[#0077be] text-white  hover:bg-[#005c9e]"}  ${isMobile && isButtonClicked && isFullyExpanded ? "mobile-height" : ""}
   `}
-  style={{
-    top: "55%", // Always center vertically
-    left: "50%", // Always center horizontally
-    transform: "translate(-50%, -50%)", // Maintain centered positioning
-    width: isExpand ? (isFullyExpanded ? "90%" : "300px") : "250px",
-    maxWidth: isFullyExpanded ? "500px" : "none",
-    height: isExpand ? (isFullyExpanded ? "350px" : "100px") : "auto",
-    padding: isButtonClicked
-      ? isFullyExpanded
-        ? "30px"
-        : "16px 24px" // Symmetrical padding
-      : "16px 24px",
-    transformOrigin: "center", // Center the expansion
-    transition: isExpand
-    ? "width 0.6s ease-out, padding 1.2s ease-out, height 0.6s cubic-bezier(0.25, 0.1, 0.25, 1)"  // Slower height transition
-    : "all 0.6s ease-out",  // Faster closing transition for all properties
-    borderRadius: "20px",
-    boxShadow: isButtonClicked
-      ? "0 8px 30px rgba(0, 0, 0, 0.15)"
-      : "0 2px 5px rgba(0, 0, 0, 0.1)",
-  }}
-          onClick={!isButtonClicked ? handleButtonClick : undefined}
+        style={{
+          top: "55%", // Always center vertically
+          left: "50%", // Always center horizontally
+          transform: "translate(-50%, -50%)", // Maintain centered positioning
+          width: isExpand ? (isFullyExpanded ? "90%" : "300px") : "250px",
+          maxWidth: isFullyExpanded ? "500px" : "none",
+          height: isExpand ? (isFullyExpanded ? "350px" : "100px") : "auto",
+          padding: isButtonClicked
+            ? isFullyExpanded
+              ? "30px"
+              : "16px 24px" // Symmetrical padding
+            : "16px 24px",
+          transformOrigin: "center", // Center the expansion
+          transition: isExpand
+            ? "width 0.6s ease-out, padding 1.2s ease-out, height 0.6s cubic-bezier(0.25, 0.1, 0.25, 1)" // Slower height transition
+            : "all 0.6s ease-out", // Faster closing transition for all properties
+          borderRadius: "20px",
+          boxShadow: isButtonClicked
+            ? "0 8px 30px rgba(0, 0, 0, 0.15)"
+            : "0 2px 5px rgba(0, 0, 0, 0.1)",
+        }}
+        onClick={!isButtonClicked ? handleButtonClick : undefined}
       >
         {" "}
         {!isButtonClicked && (
@@ -623,12 +625,12 @@ const KnowledgeGraph = () => {
               ✕
             </button>
             <div
-      className="w-full mx-auto"
-      style={{
-        opacity: isTextVisible ? 1 : 0, // Use isTextVisible to control visibility
-        transition: "opacity 1s ease-in-out", // Smooth fade-in transition
-      }}
-    >
+              className="w-full mx-auto"
+              style={{
+                opacity: isTextVisible ? 1 : 0, // Use isTextVisible to control visibility
+                transition: "opacity 1s ease-in-out", // Smooth fade-in transition
+              }}
+            >
               <h2
                 className={` mb-4 text-[2rem] text-left flex-wrap text-gray-700 font-montserrat`}
               >
