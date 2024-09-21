@@ -2,26 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
 
-body,html {
-  color: var(--foreground);
-  background: var(--background);
+
+
+body,html, #root {
+  
   font-family: Arial, Helvetica, sans-serif;
-  min-height: 100vh;
+  height: 100%;
   position: relative;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 @layer utilities {
