@@ -537,8 +537,13 @@ const KnowledgeGraph = () => {
       )}
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 z-0 fade-in-node"
-        style={{ position: "absolute", inset: 0 }}
+        className="absolute z-0 fade-in-node"
+        style={{
+          top: isMobile?'-10px':'-20px', // Exceeds the top by 20px
+          left:isMobile?'-10px':'-20px', // Exceeds the left by 20px
+          width: isMobile?'calc(100% + 20px)':'calc(100% + 40px)', // Adds 20px on the left and right
+          height: isMobile?'calc(100% + 20px)':'calc(100% + 40px)',
+        }}
       />
 
       <h1
@@ -553,7 +558,7 @@ const KnowledgeGraph = () => {
         }`}
         id="company-name"
         style={{
-          top: isButtonClicked ? "1%" : "46%",
+          top: isButtonClicked ? "1.5%" : "46%",
           left: "50%",
           transform: isButtonClicked
             ? "translate(-50%, 0)"
@@ -676,7 +681,7 @@ const KnowledgeGraph = () => {
                   }
                 `}
               </style>
-              
+
               <input
                 type="email"
                 placeholder="Your email address"
