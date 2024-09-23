@@ -39,25 +39,29 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-      <table className="table-auto w-full mt-4">
-        <thead>
-          <tr>
-            <th className="px-4 py-2">Email</th>
-            <th className="px-4 py-2">Date Subscribed</th>
+<div className="container mx-auto p-4">
+  <h1 className="text-2xl font-bold mb-4">Dashboard Holoscope</h1>
+  
+  {/* Add a scrollable div around the table */}
+  <div className="overflow-y-auto max-h-[600px] border border-black"> {/* This makes the div scrollable */}
+    <table className="table-auto w-full mt-4   z-[99]">
+      <thead>
+        <tr>
+          <th className="px-4 py-2">Email</th>
+          <th className="px-4 py-2">Date Subscribed</th>
+        </tr>
+      </thead>
+      <tbody>
+        {subscribers.map((subscriber) => (
+          <tr key={subscriber._id}>
+            <td className="border px-4 py-2">{subscriber.email}</td>
+            <td className="border px-4 py-2">{new Date(subscriber.createdAt).toLocaleString()}</td>
           </tr>
-        </thead>
-        <tbody>
-          {subscribers.map((subscriber) => (
-            <tr key={subscriber._id}>
-              <td className="border px-4 py-2">{subscriber.email}</td>
-              <td className="border px-4 py-2">{new Date(subscriber.createdAt).toLocaleString()}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
   );
 };
 
