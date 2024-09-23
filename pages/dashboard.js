@@ -43,7 +43,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 bg-gray-100 min-h-screen">
+    <div className=" mx-auto py-6 sm:px-[100px] bg-gray-100 min-h-screen">
       <div className="bg-white shadow-md rounded-lg p-6">
         <h1 className="text-3xl font-bold mb-6 text-gray-800 text-center">Dashboard - Holoscope</h1>
 
