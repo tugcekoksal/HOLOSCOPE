@@ -1,91 +1,10 @@
 import React, { useRef, useEffect, useCallback, useState } from "react"
 import Notification from "./Notification"
-
-// Function to check if two nodes overlap
-const areNodesIntersecting = (node1, node2, minDistance) => {
-  const distance = Math.sqrt(
-    (node1.x - node2.x) ** 2 + (node1.y - node2.y) ** 2
-  )
-  return distance < node1.size + node2.size + minDistance
-}
-
-// Generate nodes with non-overlapping positions and ensure the largest node is in the center
-const generateNodes = (
-  nodeCount,
-  canvasWidth,
-  canvasHeight,
-  minDistanceFromMain
-) => {
-  const nodes = []
-  const mainNodeSize = 30
-
-  const mainNode = {
-    id: 0,
-    x: canvasWidth / 2,
-    y: canvasHeight / 2 + 0,
-    homeX: canvasWidth / 2,
-    homeY: canvasHeight / 2 + 100,
-    size: mainNodeSize,
-    color: "rgba(245, 245, 245, 1)",
-    originalColor: "rgba(30, 144, 255, 0.9)",
-    connections: 0,
-    speedX: 0,
-    speedY: 0,
-    isMainNode: true,
-    isHovered: false,
-    distanceFromMain: 0,
-    connectedNodes: new Set(),
-    glowOpacity: 0,
-  }
-  nodes.push(mainNode)
-
-  for (let i = 1; i <= nodeCount; i++) {
-    let newNode
-    let isIntersecting
-
-    do {
-      newNode = {
-        id: i,
-        x: Math.random() * canvasWidth,
-        y: Math.random() * canvasHeight,
-        homeX: 0,
-        homeY: 0,
-        size: Math.random() * 12 + 3,
-        color: "rgba(200, 200, 200, 0.9)",
-        originalColor: "rgba(200, 200, 200, 0.9)",
-        connections: 0,
-        speedX: (Math.random() - 0.5) * 0.2,
-        speedY: (Math.random() - 0.5) * 0.2,
-        isMainNode: false,
-        blueLevel: 0,
-        transitionDelay: 0,
-        turningBlue: false,
-        connectedNodes: new Set(),
-      }
-
-      isIntersecting = nodes.some((node) =>
-        areNodesIntersecting(
-          newNode,
-          node,
-          node === mainNode ? minDistanceFromMain : 0
-        )
-      )
-    } while (isIntersecting)
-
-    newNode.homeX = newNode.x
-    newNode.homeY = newNode.y
-
-    const dx = newNode.x - mainNode.x
-    const dy = newNode.y - mainNode.y
-    newNode.distanceFromMain = Math.sqrt(dx * dx + dy * dy)
-
-    nodes.push(newNode)
-  }
-
-  nodes.sort((a, b) => a.distanceFromMain - b.distanceFromMain)
-
-  return nodes
-}
+import NavBar from "./Navbar"
+import Title from "./Title"
+import { generateNodes } from "./utils"
+import { canvasStyles } from "@/styles/canvasStyle"
+import { ExpandingButton } from "./ExpandingButton"
 
 const KnowledgeGraph = () => {
   const [emailError, setEmailError] = useState("") // State to track email validation errors
@@ -104,7 +23,7 @@ const KnowledgeGraph = () => {
   const [notificationMessage, setNotificationMessage] = useState("")
   const [formSubmitted, setFormSubmitted] = useState(false)
   const canvasRef = useRef(null)
-  const textRef = useRef(null)
+
   const buttonRef = useRef(null)
   const nodes = useRef([])
   const mousePos = useRef({ x: 0, y: 0 })
@@ -523,194 +442,32 @@ const KnowledgeGraph = () => {
           onClose={handleNotificationClose} // Reset notification after fade-out
         />
       )}
-
-      {isButtonClicked && (
-        <div
-          className={`absolute top-0 left-0 w-full ${isMobile?'h-[60px]':'h-[70px]'} bg-white z-20 mb-4`}
-          style={{
-            boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
-            transition: "all 0.5s ease-in-out",
-            marginTop: 0,
-            paddingTop: "env(safe-area-inset-top)",
-          }}
-        ></div>
-      )}
+      {isButtonClicked && <NavBar isMobile={isMobile} />}
       <canvas
         ref={canvasRef}
         className="absolute z-0 fade-in-node"
-        style={{
-          top: isMobile?'-10px':'-20px', // Exceeds the top by 20px
-          left:isMobile?'-10px':'-20px', // Exceeds the left by 20px
-          width: isMobile?'calc(100% + 20px)':'calc(100% + 40px)', // Adds 20px on the left and right
-          height: isMobile?'calc(100% + 20px)':'calc(100% + 40px)',
-        }}
+        style={canvasStyles(isMobile)}
       />
-
-      <h1
-        ref={textRef}
-        className={`absolute font-bold z-30 transition-all duration-[0.5s] md:duration-[0.7s] ease-in-out text-[#004772] 
-        ${
-          isButtonClicked
-            ? "text-5xl sm:text-6xl"
-            : isHoveredText
-              ? "text-5xl sm:text-7xl"
-              : "text-5xl sm:text-6xl"
-        }`}
-        id="company-name"
-        style={{
-          top: isButtonClicked ? isMobile? "0.7%": "0.3%" : "45%",
-          left: "50%",
-          transform: isButtonClicked
-            ? "translate(-50%, 0)"
-            : "translate(-50%, -50%)",
-          pointerEvents: "none",
-        }}
-      >
-       holoscope
-      </h1>
-      <button
-        ref={buttonRef}
-        className={`absolute flex flex-col items-center justify-center z-10 rounded-sm shadow-lg font-semibold transition-all duration-1000 ease-out fade-in-node font-montserrat
-    ${isButtonClicked ? "bg-white" : "bg-[#0077be] text-white  hover:bg-[#005c9e]"}  ${isMobile && isButtonClicked && isFullyExpanded ? "mobile-height" : ""}
-  `}
-        style={{
-          top: "55%", // Always center vertically
-          left: "50%", // Always center horizontally
-          transform: "translate(-50%, -50%)", // Maintain centered positioning
-          width: isExpand ? (isFullyExpanded ? "90%" : "300px") : "200px",
-          maxWidth: isFullyExpanded ? "500px" : "none",
-          height: isExpand ? (isFullyExpanded ? "400px" : "100px") : "auto",
-          padding: isButtonClicked
-            ? isFullyExpanded
-              ? "30px"
-              : "16px 24px" // Symmetrical padding
-            : "14px 20px",
-          transformOrigin: "center", // Center the expansion
-          transition: isExpand
-            ? "width 0.6s ease-out, padding 1.2s ease-out, height 0.6s cubic-bezier(0.25, 0.1, 0.25, 1)" // Slower height transition
-            : "all 0.6s ease-out", // Faster closing transition for all properties
-          borderRadius: "20px",
-          boxShadow: isButtonClicked
-            ? "0 8px 30px rgba(0, 0, 0, 0.15)"
-            : "0 2px 5px rgba(0, 0, 0, 0.1)",
-        }}
-        onClick={!isButtonClicked ? handleButtonClick : undefined}
-      >
-        {" "}
-        {!isButtonClicked && (
-          <div
-            style={{
-              position: "absolute",
-              top: "-50%",
-              left: "-50%",
-              right: "-50%",
-              bottom: "-50%",
-              background: `
-              linear-gradient(
-                135deg,
-                rgba(255,255,255,0) ${shine}%,
-                rgba(255,255,255,0.03) ${shine + 10}%,
-                rgba(255,255,255,0.2) ${shine + 20}%,
-                rgba(255,255,255,0.3) ${shine + 30}%,
-                rgba(255,255,255,0.2) ${shine + 40}%,
-                rgba(255,255,255,0.03) ${shine + 50}%,
-                rgba(255,255,255,0) ${shine + 60}%
-              )
-            `,
-              transform: "rotate(-10deg) skew(-10deg)",
-              transition: "opacity 0.3s",
-              opacity: 1,
-              pointerEvents: "none",
-            }}
-          />
-        )}
-        {isFullyExpanded ? (
-          <>
-            <button
-              className="absolute top-[-10px] right-[-10px]  flex items-center justify-center w-8 h-8 rounded-full bg-[#0077be] text-white hover:bg-[#005c9e] transition-colors duration-300 ease-in-out"
-              onClick={handleCloseClick}
-              aria-label="Close"
-              style={{
-                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
-              }}
-            >
-              ✕
-            </button>
-            <div
-              className="w-full mx-auto"
-              style={{
-                opacity: isTextVisible ? 1 : 0, // Use isTextVisible to control visibility
-                transition: "opacity 1s ease-in-out", // Smooth fade-in transition
-              }}
-            >
-              <h2
-                className={` mb-4 text-[2rem] text-left flex-wrap text-gray-700 font-montserrat`}
-              >
-                Montez dans le train ! 🚂
-
-              </h2>
-
-              <p className="text-left text-sm mb-8 font-normal text-gray-500 font-montserrat">
-              Vos employés utilisent ChatGPT, top ! Au-delà de ça, vous ne savez pas comment tirer partie de cette révolution de l’IA pour faire           
-                 <span className="font-semibold mx-2">exploser votre chiffre d’affaires ?
-                </span>Ne restez pas sur le quai, montez dans le train — notre plateforme est faite pour ça ;)
-                
-              </p>
-
-              
-            </div>
-            <form
-              onSubmit={handleSubmit}
-              noValidate
-              style={{
-                opacity: isTextVisible ? 1 : 0, // Form fades in when fully expanded
-                transition: "opacity 1s ease-in-out", // Smooth fade-in transition
-              }}
-              className="flex flex-col items-center space-y-3 focus-within:bg-white rounded-[15px] w-full"
-            >
-              <style jsx>
-                {`
-                  input::placeholder {
-                    font-weight: 400;
-                  }
-                `}
-              </style>
-
-              <input
-                type="email"
-                placeholder="Your email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="focus:bg-white mb-2 sm:mb-0 p-3 px-4 w-full sm:flex-grow rounded-[15px] outline-none border border-gray-300  bg-gray-100 text-gray-700 placeholder-gray-400  placeholder-opacity-75 "
-                required
-              />
-              {/* Show error message */}
-              {emailError && (
-                <p className="text-red-500 text-sm font-medium ">
-                  {emailError}
-                </p>
-              )}
-              <button
-                type="submit"
-                className="bg-[#0077be] font-montserrat text-white px-6 py-3 w-full sm:flex-grow rounded-[15px] hover:bg-[#005c9e] mt-2 sm:mt-0 font-semibold"
-              >
-                <span className="font-semibold">{buttonText}</span>
-              </button>
-            </form>
-          </>
-        ) : (
-          <span
-            style={{
-              position: "relative",
-              zIndex: 1,
-              opacity: isExpand ? 0 : 1,
-              transition: "opacity 0.3s",
-            }}
-          >
-            🤖 + 👨 = ♥️
-          </span>
-        )}
-      </button>
+      <Title
+        isButtonClicked={isButtonClicked}
+        isHoveredText={isHoveredText}
+        isMobile={isMobile}
+      />{" "}
+      <ExpandingButton
+        isButtonClicked={isButtonClicked}
+        isFullyExpanded={isFullyExpanded}
+        shine={shine}
+        buttonText={buttonText}
+        handleButtonClick={handleButtonClick} // Function to handle button click event
+        handleCloseClick={handleCloseClick} // Function to handle close button click
+        isExpand={isExpand} // Boolean for whether the button is expanding
+        isMobile={isMobile} // Boolean for mobile responsiveness
+        email={email} // Email state for the form
+        setEmail={setEmail} // Function to update email state
+        emailError={emailError} // Email error message for the form
+        handleSubmit={handleSubmit} // Function to handle form submit
+        isTextVisible={isTextVisible} // Boolean to control text visibility inside the button
+      />
     </div>
   )
 }
