@@ -3,9 +3,6 @@
 @tailwind utilities;
 
 
-
-
-
 body,html, #root {
   
   font-family: Arial, Helvetica, sans-serif;
@@ -13,7 +10,8 @@ body,html, #root {
   position: relative;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+
+  overflow: hidden;
 }
 
 @layer utilities {
