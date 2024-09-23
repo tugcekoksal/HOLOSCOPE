@@ -455,6 +455,7 @@ const KnowledgeGraph = () => {
       />{" "}
       <ExpandingButton
         isButtonClicked={isButtonClicked}
+        buttonRef={buttonRef}
         isFullyExpanded={isFullyExpanded}
         shine={shine}
         buttonText={buttonText}

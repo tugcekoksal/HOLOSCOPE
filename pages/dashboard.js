@@ -35,33 +35,40 @@ const Dashboard = () => {
   }, [router]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-xl font-semibold">Loading...</div>
+      </div>
+    );
   }
 
   return (
-<div className="container mx-auto p-4">
-  <h1 className="text-2xl font-bold mb-4">Dashboard Holoscope</h1>
-  
-  {/* Add a scrollable div around the table */}
-  <div className="overflow-y-auto max-h-[600px] border border-black"> {/* This makes the div scrollable */}
-    <table className="table-auto w-full mt-4   z-[99]">
-      <thead>
-        <tr>
-          <th className="px-4 py-2">Email</th>
-          <th className="px-4 py-2">Date Subscribed</th>
-        </tr>
-      </thead>
-      <tbody>
-        {subscribers.map((subscriber) => (
-          <tr key={subscriber._id}>
-            <td className="border px-4 py-2">{subscriber.email}</td>
-            <td className="border px-4 py-2">{new Date(subscriber.createdAt).toLocaleString()}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-</div>
+    <div className="container mx-auto p-6 bg-gray-100 min-h-screen">
+      <div className="bg-white shadow-md rounded-lg p-6">
+        <h1 className="text-3xl font-bold mb-6 text-gray-800 text-center">Dashboard - Holoscope</h1>
+
+        <div className="overflow-y-auto max-h-[600px] border border-gray-300 rounded-lg shadow-sm">
+          <table className="min-w-full table-auto bg-white rounded-lg">
+            <thead className="bg-blue-500 text-white">
+              <tr>
+                <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Email</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Date Subscribed</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {subscribers.map((subscriber) => (
+                <tr key={subscriber._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 text-sm text-gray-700">{subscriber.email}</td>
+                  <td className="px-6 py-4 text-sm text-gray-700">
+                    {new Date(subscriber.createdAt).toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   );
 };
 
