@@ -74,22 +74,5 @@ body,html, #root {
  
 }
 
-/* In your CSS file */
-.shine-effect {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.03) 10%,
-    rgba(255, 255, 255, 0.2) 20%,
-    rgba(255, 255, 255, 0.3) 30%,
-    rgba(255, 255, 255, 0.2) 40%,
-    rgba(255, 255, 255, 0.03) 50%,
-    rgba(255, 255, 255, 0) 60%
-  );
-  transform: rotate(-10deg) skew(-10deg);
-  transition: opacity 0.3s;
-  opacity: 1;
-  pointer-events: none;
-}
 
 

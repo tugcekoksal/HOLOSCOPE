@@ -34,8 +34,32 @@ export const ExpandingButton = ({
     onClick={!isButtonClicked ? handleButtonClick : undefined}
   >
     {!isButtonClicked && (
-      <div className="shine-effect" />
-    )}
+          <div
+            style={{
+              position: "absolute",
+              top: "-50%",
+              left: "-50%",
+              right: "-50%",
+              bottom: "-50%",
+              background: `
+              linear-gradient(
+                135deg,
+                rgba(255,255,255,0) ${shine}%,
+                rgba(255,255,255,0.03) ${shine + 10}%,
+                rgba(255,255,255,0.2) ${shine + 20}%,
+                rgba(255,255,255,0.3) ${shine + 30}%,
+                rgba(255,255,255,0.2) ${shine + 40}%,
+                rgba(255,255,255,0.03) ${shine + 50}%,
+                rgba(255,255,255,0) ${shine + 60}%
+              )
+            `,
+              transform: "rotate(-10deg) skew(-10deg)",
+              transition: "opacity 0.3s",
+              opacity: 1,
+              pointerEvents: "none",
+            }}
+          />
+        )}
 
     {isFullyExpanded ? (
       <>

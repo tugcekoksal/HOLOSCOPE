@@ -26,7 +26,7 @@ const Notification = ({ message, onClose }) => {
 
   return (
     <div
-    className={`fixed bottom-6 mx-4 md:mx-0 right-0 md:right-4 bg-gradient-to-r from-[#0077be] to-[#00a3ff] text-white px-[20px] md:px-[40px] py-[15px] md:py-[30px] font-bold rounded-md shadow-lg transition-opacity duration-500 ${
+    className={`fixed bottom-6 text-center mx-2 md:mx-0 right-0 md:right-4 bg-gradient-to-r from-[#0077be] to-[#00a3ff] text-white px-[12px] md:px-[40px] py-[15px] md:py-[30px] font-bold rounded-md shadow-lg transition-opacity duration-500 ${
       visible ? "opacity-100" : "opacity-0"
     }`}
     style={{
